@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "../Platform/Utils.h"
+#include <Eigen/Eigen>
 
 class Model {
 private:
