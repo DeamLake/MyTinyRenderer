@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <IncludePath>D:\Workpath\C++Path\3rdParty\opencv\build\include;D:\Workpath\C++Path\3rdParty\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Workpath\C++Path\3rdParty\opencv\build\x64\vc15\lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>D:\Workpath\C++Path\3rdParty\eigen3;$(ExternalIncludePath)</ExternalIncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>opencv_world455d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{0e53148f-b1a2-472a-987f-3b8e6591dbc2}</ProjectGuid>
-    <RootNamespace>TinyRenderer</RootNamespace>
+    <ProjectGuid>{54694cd8-a13b-4018-9103-658f7c75d74c}</ProjectGuid>
+    <RootNamespace>MyTinyRenderer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -65,6 +65,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Renderer.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -151,7 +152,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="TinyRenderer.cpp" />
+    <ClInclude Include="src\Core\Rasterizer.h" />
+    <ClInclude Include="src\Platform\Utils.h" />
+    <ClInclude Include="src\Resource\model.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SandBox.cpp" />
+    <ClCompile Include="src\Core\Rasterizer.cpp" />
+    <ClCompile Include="src\Resource\model.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
