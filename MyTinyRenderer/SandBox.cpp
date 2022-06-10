@@ -7,8 +7,11 @@ Vector3f DefaultColor(255, 255, 255);
 
 void main() {
 	Rasterizer r(width, height);
-	r.clear(Buffers::Color | Buffers::Depth);
 	Model* model = new Model("Resource/obj/african_head.obj");
+	r.clear(Buffers::Color | Buffers::Depth);
+	r.set_model(0.0, 1);
+	r.set_view(Vector3f(1, 1, 5));
+	r.set_projection(45, width / height, -0.1, -500);
 	r.draw_model(model, DefaultColor);
 	int key = 0;
 	while (key != 27) {
