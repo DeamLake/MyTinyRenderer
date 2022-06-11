@@ -15,7 +15,7 @@ public:
 
 	virtual Eigen::Vector3f vertex(int iface, int nthvert) final
 	{
-		// 计算NDC坐标
+		// 计算屏幕坐标
 		Eigen::Vector3f Light(0, 0, 1);
 		std::vector<int> face = model->face(iface);
 		coords[nthvert] = model->vert(face[nthvert]);

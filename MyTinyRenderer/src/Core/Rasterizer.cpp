@@ -108,10 +108,10 @@ bool Rasterizer::inside_triangle(std::vector<Eigen::Vector3f>& triangle, float x
 
 void Rasterizer::draw_triangle(std::vector<Eigen::Vector3f>& v, IShader* shader)
 {
-	int x_min = std::min({ v[0].x(),v[1].x(),v[2].x() });
-	int x_max = std::max({ v[0].x(),v[1].x(),v[2].x() });
-	int y_min = std::min({ v[0].y(),v[1].y(),v[2].y() });
-	int y_max = std::max({ v[0].y(),v[1].y(),v[2].y() });
+	float x_min = std::min({ v[0].x(),v[1].x(),v[2].x() });
+	float x_max = std::max({ v[0].x(),v[1].x(),v[2].x() });
+	float y_min = std::min({ v[0].y(),v[1].y(),v[2].y() });
+	float y_max = std::max({ v[0].y(),v[1].y(),v[2].y() });
 
 	for (int x = x_min; x <= x_max; x++) {
 		for (int y = y_min; y < y_max; y++) {
@@ -136,13 +136,12 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 	shader->set_model_data(model_data);
 	shader->width = width;
 	shader->height = height;
-	shader->mvp = this->Projection_mat * this->View_mat * Model_mat;
+	shader->mvp = this->Projection_mat * this->View_mat * this->Model_mat;
 
 	for (int i = 0; i < model_data->nfaces(); i++) {
 		bool OutBoundJump = false;
 		std::vector<Eigen::Vector3f> coords(3);
 		for (int j = 0; j < 3; j++) {
-			// NDC×ø±ê
 			coords[j] = shader->vertex(i, j);
 			if (coords[j].x() < 0 || coords[j].x() > width || coords[j].y() < 0 || coords[j].y() > height)
 			{
@@ -150,8 +149,17 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 				break;
 			}
 		}
-		// ÊÇ·ñ³¬³öNDC
+		// ÊÇ·ñ³¬³öÆÁÄ»
 		if (OutBoundJump) { continue; }
+
+		{
+			// ±³ÃæÌÞ³ý
+			Eigen::Vector3f  AB = coords[1] - coords[0];
+			Eigen::Vector3f  AC = coords[2] - coords[0];
+			if (AB.x() * AC.y() - AC.x() * AB.y() <= 0)
+				continue;
+		}
+
 		draw_triangle(coords, shader);
 	}
 }
