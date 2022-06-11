@@ -114,7 +114,7 @@ void Rasterizer::draw_triangle(std::vector<Eigen::Vector3f>& v, IShader* shader)
 	float y_max = std::max({ v[0].y(),v[1].y(),v[2].y() });
 
 	for (int x = x_min; x <= x_max; x++) {
-		for (int y = y_min; y < y_max; y++) {
+		for (int y = y_min; y <= y_max; y++) {
 			Eigen::Vector3f bcCoord = baryCentric(v, x, y);
 			if (inside_triangle(v, x, y, bcCoord)) {
 				float alpha = bcCoord.x(), beta = bcCoord.y(), gamma = bcCoord.z();
