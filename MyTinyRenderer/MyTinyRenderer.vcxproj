@@ -153,13 +153,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Rasterizer.h" />
+    <ClInclude Include="src\Core\Shader.h" />
+    <ClInclude Include="src\Core\Shader\GouraudShader.h" />
+    <ClInclude Include="src\Core\Shader\IShader.h" />
     <ClInclude Include="src\Platform\Utils.h" />
     <ClInclude Include="src\Resource\model.h" />
+    <ClInclude Include="src\Resource\tgaimage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SandBox.cpp" />
     <ClCompile Include="src\Core\Rasterizer.cpp" />
+    <ClCompile Include="src\Core\Shader\IShader.cpp" />
     <ClCompile Include="src\Resource\model.cpp" />
+    <ClCompile Include="src\Resource\tgaimage.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

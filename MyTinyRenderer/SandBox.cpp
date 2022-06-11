@@ -1,21 +1,24 @@
 #include "src/Core/Rasterizer.h"
-#include "src/Resource/model.h"
 #include "src/Platform/Utils.h"
+#include<ctime>
 
 using namespace Eigen;
-Vector3f DefaultColor(255, 255, 255);
 
-void main() {
-	Rasterizer r(width, height);
+Eigen::Vector3f DefaultColor(255, 255, 255);
+Eigen::Vector3f ViewPoint(1, 1, 5);
+
+int main() {
+	clock_t cur_time = clock();
+	Rasterizer r(width, height,eye_fov,zNear,zFar,ViewPoint);
 	Model* model = new Model("Resource/obj/african_head.obj");
-	r.clear(Buffers::Color | Buffers::Depth);
-	r.set_model(0.0, 1);
-	r.set_view(Vector3f(1, 1, 5));
-	r.set_projection(45, width / height, -0.1, -500);
-	r.draw_model(model, DefaultColor);
+	IShader* shader = new GouraudShader();
 	int key = 0;
 	while (key != 27) {
+		r.clear(Buffers::Color | Buffers::Depth);
+		r.draw_model(model, shader);
 		r.show();
+		std::cout <<"Render time: " << clock() - cur_time << std::endl;
+		cur_time = clock();
 		key = cv::waitKey(10);
 	}
 }
