@@ -5,7 +5,7 @@
 using namespace Eigen;
 
 Eigen::Vector3f DefaultColor(255, 255, 255);
-Eigen::Vector3f ViewPoint(1, 1, 5);
+Eigen::Vector3f ViewPoint(1, 1, 3);
 
 int main() {
 	clock_t cur_time = clock();
@@ -13,6 +13,7 @@ int main() {
 	Model* model = new Model("Resource/obj/african_head.obj");
 	IShader* shader = new GouraudShader();
 	int key = 0;
+	
 	while (key != 27) {
 		r.clear(Buffers::Color | Buffers::Depth);
 		r.draw_model(model, shader);

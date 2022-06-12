@@ -11,7 +11,7 @@ Rasterizer::Rasterizer(int w, int h, int eyefov, float zn, float zf, const Eigen
 	set_projection();
 }
 
-void Rasterizer::clear(Buffers buff) 
+void Rasterizer::clear(Buffers buff)
 {
 	if ((buff & Buffers::Color) == Buffers::Color)
 	{
@@ -31,7 +31,7 @@ void Rasterizer::show()
 	cv::imshow("image", image);
 }
 
-void Rasterizer::draw_line(const Eigen::Vector2f& begin, const Eigen::Vector2f& end, const Eigen::Vector3f& color) 
+void Rasterizer::draw_line(const Eigen::Vector2f& begin, const Eigen::Vector2f& end, const Eigen::Vector3f& color)
 {
 	bool steep = false;
 	int x0 = begin.x(), y0 = begin.y();
@@ -53,7 +53,8 @@ void Rasterizer::draw_line(const Eigen::Vector2f& begin, const Eigen::Vector2f& 
 	for (int x = x0; x <= x1; x++) {
 		if (steep) {
 			set_pixel(Eigen::Vector2f(y, x), color);
-		}else {
+		}
+		else {
 			set_pixel(Eigen::Vector2f(x, y), color);
 		}
 		error += derror;
@@ -64,7 +65,7 @@ void Rasterizer::draw_line(const Eigen::Vector2f& begin, const Eigen::Vector2f& 
 	}
 }
 
-void Rasterizer::draw_wireframe(Model* model, const Eigen::Vector3f& color) 
+void Rasterizer::draw_wireframe(Model* model, const Eigen::Vector3f& color)
 {
 	for (int i = 0; i < model->nfaces(); i++) {
 		std::vector<int> face = model->face(i);
@@ -90,8 +91,8 @@ Eigen::Vector3f Rasterizer::baryCentric(const std::vector<Eigen::Vector3f>& v, f
 	ac = v[2] - v[0];
 	pa = v[0] - p;*/
 	Eigen::Vector3f p(x, y, 1);
-	Eigen::Vector3f s1(v[1].x() - v[0].x(), v[2].x() - v[0].x(), v[0].x()-p.x());
-	Eigen::Vector3f s2(v[1].y() - v[0].y(), v[2].y() - v[0].y(), v[0].y()-p.y());
+	Eigen::Vector3f s1(v[1].x() - v[0].x(), v[2].x() - v[0].x(), v[0].x() - p.x());
+	Eigen::Vector3f s2(v[1].y() - v[0].y(), v[2].y() - v[0].y(), v[0].y() - p.y());
 	Eigen::Vector3f bcCood = s1.cross(s2);
 
 	if (std::abs(bcCood.z() > 1e-2))
@@ -108,10 +109,10 @@ bool Rasterizer::inside_triangle(std::vector<Eigen::Vector3f>& triangle, float x
 
 void Rasterizer::draw_triangle(std::vector<Eigen::Vector3f>& v, IShader* shader)
 {
-	float x_min = std::min({ v[0].x(),v[1].x(),v[2].x() });
-	float x_max = std::max({ v[0].x(),v[1].x(),v[2].x() });
-	float y_min = std::min({ v[0].y(),v[1].y(),v[2].y() });
-	float y_max = std::max({ v[0].y(),v[1].y(),v[2].y() });
+	float x_min = std::max(0.0f, std::min({ v[0].x(),v[1].x(),v[2].x() }));
+	float x_max = std::min(float(width), std::max({ v[0].x(),v[1].x(),v[2].x() }));
+	float y_min = std::max(0.0f, std::min({ v[0].y(),v[1].y(),v[2].y() }));
+	float y_max = std::min(float(height), std::max({ v[0].y(),v[1].y(),v[2].y() }));
 
 	for (int x = x_min; x <= x_max; x++) {
 		for (int y = y_min; y <= y_max; y++) {
@@ -139,18 +140,24 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 	shader->mvp = this->Projection_mat * this->View_mat * this->Model_mat;
 
 	for (int i = 0; i < model_data->nfaces(); i++) {
-		bool OutBoundJump = false;
+		int ClipStateCode = 15;
+		//bool OutBoundJump = false;
 		std::vector<Eigen::Vector3f> coords(3);
 		for (int j = 0; j < 3; j++) {
 			coords[j] = shader->vertex(i, j);
-			if (coords[j].x() < 0 || coords[j].x() > width || coords[j].y() < 0 || coords[j].y() > height)
+			ClipStateCode &= (coords[j].x() < 0)			<< 0;
+			ClipStateCode &= (coords[j].x() > width)	<<1;
+			ClipStateCode &= (coords[j].y() < 0)			<< 2;
+			ClipStateCode &= (coords[j].y() > height)	<< 3;
+			/*if (coords[j].x() < 0 || coords[j].x() > width || coords[j].y() < 0 || coords[j].y() > height)
 			{
 				OutBoundJump = true;
 				break;
-			}
+			}*/
 		}
 		// 是否超出屏幕
-		if (OutBoundJump) { continue; }
+		//if (OutBoundJump) { continue; }
+		if (ClipStateCode > 0) { continue; }
 
 		{
 			// 背面剔除
@@ -165,24 +172,24 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 }
 
 void Rasterizer::set_model(float angle, float scale)
-{ 
+{
 	Eigen::Matrix4f rotation, scaletion, translate;
 	// 绕Z轴转
 	angle = angle * MY_PI / 180.0f;
 	rotation << cos(angle), -sin(angle), 0, 0,
-						sin(angle), cos(angle), 0, 0,
-						0, 0, 1, 0,
-						0, 0, 0, 1;
+		sin(angle), cos(angle), 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1;
 
 	scaletion << scale, 0, 0, 0,
-						0, scale, 0, 0,
-						0, 0, scale, 0,
-						0, 0, 0, 1;
+		0, scale, 0, 0,
+		0, 0, scale, 0,
+		0, 0, 0, 1;
 
 	translate << 1, 0, 0, 0,
-						0, 1, 0, 0,
-						0, 0, 1, 0,
-						0, 0, 0, 1;
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1;
 
 	this->Model_mat = translate * scaletion * rotation;
 }
@@ -190,9 +197,9 @@ void Rasterizer::set_model(float angle, float scale)
 void Rasterizer::set_view(const Eigen::Vector3f& view_point)
 {
 	this->View_mat << 1, 0, 0, -view_point.x(),
-									0, 1, 0, -view_point.y(),
-									0, 0, 1, -view_point.z(),
-									0, 0, 0, 1;
+		0, 1, 0, -view_point.y(),
+		0, 0, 1, -view_point.z(),
+		0, 0, 0, 1;
 }
 
 void Rasterizer::set_projection()
@@ -202,9 +209,9 @@ void Rasterizer::set_projection()
 	Eigen::Matrix4f m, n, p;
 	// 传统透视矩阵
 	m << zNear, 0, 0, 0,
-				0, zNear, 0, 0,
-				0, 0, zNear + zFar, -zNear * zFar,
-				0, 0, 1, 0;
+		0, zNear, 0, 0,
+		0, 0, zNear + zFar, -zNear * zFar,
+		0, 0, 1, 0;
 
 	float half = eye_fov / 2 * MY_PI / 180.0f;// 半角
 	float top = zNear * tan(half);
@@ -214,32 +221,32 @@ void Rasterizer::set_projection()
 
 	// 标准化 由于 zNear可能是负的  所以 标准化时可能会将值取反 导致上下颠倒
 	n << 2 / abs(right - left), 0, 0, 0,
-			0, 2 / abs(top - down), 0, 0,
-			0, 0, 2 / abs(zFar - zNear), 0,
-			0, 0, 0, 1;
+		0, 2 / abs(top - down), 0, 0,
+		0, 0, 2 / abs(zFar - zNear), 0,
+		0, 0, 0, 1;
 
 	// 移到中间
 	p << 1, 0, 0, -(left + right) / 2,
-			0, 1, 0, -(down + top) / 2,
-			0, 0, 1, -(zNear + zFar) / 2,
-			0, 0, 0, 1;
+		0, 1, 0, -(down + top) / 2,
+		0, 0, 1, -(zNear + zFar) / 2,
+		0, 0, 0, 1;
 
 	this->Projection_mat = n * p * m;
 }
 
-void Rasterizer::set_pixel(const Eigen::Vector2f& point, const Eigen::Vector3f& color) 
+void Rasterizer::set_pixel(const Eigen::Vector2f& point, const Eigen::Vector3f& color)
 {
 	int ind = (height - 1 - point.y()) * width + point.x();
 	frame_buf[ind] = color;
 }
 
-void Rasterizer::set_depth(const Eigen::Vector2f& point, float depth) 
+void Rasterizer::set_depth(const Eigen::Vector2f& point, float depth)
 {
 	int ind = (height - 1 - point.y()) * width + point.x();
 	depth_buf[ind] = depth;
 }
 
-float Rasterizer::get_depth(const Eigen::Vector2f& point) const 
+float Rasterizer::get_depth(const Eigen::Vector2f& point) const
 {
 	int ind = (height - 1 - point.y()) * width + point.x();
 	return depth_buf[ind];
