@@ -9,6 +9,11 @@ Rasterizer::Rasterizer(int w, int h, int eyefov, float zn, float zf, const Eigen
 	set_model(0.0, 1);
 	set_view(ViewPoint);
 	set_projection();
+#ifdef TIME_REC
+	cur_time.resize(3);
+#endif // TIME_REC
+
+	
 }
 
 void Rasterizer::clear(Buffers buff)
@@ -120,13 +125,11 @@ void Rasterizer::draw_triangle(std::vector<Eigen::Vector3f>& v, IShader* shader)
 			if (inside_triangle(v, x, y, bcCoord)) {
 				float alpha = bcCoord.x(), beta = bcCoord.y(), gamma = bcCoord.z();
 				float zp = 1.0f / (alpha / v[0].z() + beta / v[1].z() + gamma / v[2].z());
+				int index = get_index(Eigen::Vector2i(x, y));
 
-				Eigen::Vector2f point(x, y);
-				if (zp > get_depth(point)) {
-					set_depth(point, zp);
-					Eigen::Vector3f zcolor;
-					shader->fragment(bcCoord, zcolor);
-					set_pixel(point, zcolor);
+				if (zp > depth_buf[index]) {
+					depth_buf[index] = zp;
+					shader->fragment(bcCoord, frame_buf[index]);
 				}
 			}
 		}
@@ -161,7 +164,6 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 			if (AB.x() * AC.y() - AC.x() * AB.y() <= 0)
 				continue;
 		}
-
 		draw_triangle(coords, shader);
 	}
 }
@@ -229,20 +231,6 @@ void Rasterizer::set_projection()
 	this->Projection_mat = n * p * m;
 }
 
-void Rasterizer::set_pixel(const Eigen::Vector2f& point, const Eigen::Vector3f& color)
-{
-	int ind = (height - 1 - point.y()) * width + point.x();
-	frame_buf[ind] = color;
-}
-
-void Rasterizer::set_depth(const Eigen::Vector2f& point, float depth)
-{
-	int ind = (height - 1 - point.y()) * width + point.x();
-	depth_buf[ind] = depth;
-}
-
-float Rasterizer::get_depth(const Eigen::Vector2f& point) const
-{
-	int ind = (height - 1 - point.y()) * width + point.x();
-	return depth_buf[ind];
+int Rasterizer::get_index(Eigen::Vector2i point){
+	return (height - 1 - point.y()) * width + point.x();
 }

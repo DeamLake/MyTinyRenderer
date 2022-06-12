@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #define MY_PI 3.1415926
+#define TIME_REC
 
 const int width = 800, height = 800;
 const int eye_fov = 45;

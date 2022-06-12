@@ -42,11 +42,13 @@ protected:
 	void draw_triangle(std::vector<Eigen::Vector3f>& v, IShader* shader);
 
 	// »º³åÇø²Ù×÷
-	void set_pixel(const Eigen::Vector2f& point, const Eigen::Vector3f& color);
-	void set_depth(const Eigen::Vector2f& point, float depth);
-	float get_depth(const Eigen::Vector2f& point) const;
+	int get_index(Eigen::Vector2i point);
 
 private:	
+#ifdef TIME_REC
+	std::vector<clock_t> cur_time;
+#endif // TIME_REC
+
 	int width, height, eye_fov;
 	float zNear, zFar, aspect_ratio;
 	Eigen::Matrix4f Model_mat, View_mat, Projection_mat;
