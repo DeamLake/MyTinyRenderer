@@ -9,10 +9,6 @@ Rasterizer::Rasterizer(int w, int h, int eyefov, float zn, float zf, const Eigen
 	set_model(0.0, 1);
 	set_view(ViewPoint);
 	set_projection();
-#ifdef TIME_REC
-	cur_time.resize(3);
-#endif // TIME_REC
-
 }
 
 void Rasterizer::clear(Buffers buff)

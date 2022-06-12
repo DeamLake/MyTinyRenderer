@@ -45,9 +45,6 @@ protected:
 	int get_index(Eigen::Vector2i point);
 
 private:	
-#ifdef TIME_REC
-	std::vector<clock_t> cur_time;
-#endif // TIME_REC
 
 	int width, height, eye_fov;
 	float zNear, zFar, aspect_ratio;
