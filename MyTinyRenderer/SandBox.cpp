@@ -18,7 +18,7 @@ int main() {
 		r.clear(Buffers::Color | Buffers::Depth);
 		r.draw_model(model, shader);
 		r.show();
-		std::cout << "Show time: " << clock() - cur_time << std::endl;
+		std::cout << "Render time: " << clock() - cur_time << std::endl;
 		cur_time = clock();
 		key = cv::waitKey(10);
 	}

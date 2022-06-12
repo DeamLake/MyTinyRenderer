@@ -148,15 +148,24 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 	shader->mvp = this->Projection_mat * this->View_mat * this->Model_mat;
 
 	for (int i = 0; i < model_data->nfaces(); i++) {
+		int ClipStateCode = 15;
 		std::vector<Eigen::Vector3f> coords(3);
-		for (int j = 0; j < 3; j++) 
+		for (int j = 0; j < 3; j++) {
 			shader->vertex(i, j, coords[j]);
+			ClipStateCode &= (coords[j].x() < 0) << 0;
+			ClipStateCode &= (coords[j].x() > width) << 1;
+			ClipStateCode &= (coords[j].y() < 0) << 2;
+			ClipStateCode &= (coords[j].y() > height) << 3;
+		}
+		
+		// 是否存在三角形完全处在裁剪空间外
+		if (ClipStateCode > 0) { continue; }
 
 		{
 			// 背面剔除
 			Eigen::Vector3f  AB = coords[1] - coords[0];
 			Eigen::Vector3f  AC = coords[2] - coords[0];
-			if (AB.x() * AC.y() - AC.x() * AB.y() <= 0)
+			if (AB.x() * AC.y() - AC.x() * AB.y() < 0)
 				continue;
 		}
 
