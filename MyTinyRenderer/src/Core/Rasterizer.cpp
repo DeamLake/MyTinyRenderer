@@ -85,7 +85,7 @@ void Rasterizer::draw_wireframe(Model* model, const Eigen::Vector3f& color)
 	}
 }
 
-Eigen::Vector3f Rasterizer::baryCentric(const std::vector<Eigen::Vector3f>& v, float x, float y) const
+void Rasterizer::baryCentric(const std::vector<Eigen::Vector3f>& v, float x, float y, Eigen::Vector3f& bary) const
 {
 	// AP 可以用 uAB + vAC来表示 AP = uAB + vAC => uAB + vAC + PA = 0
 	// 即 (u, v, 1) 和 (ABx, ACx, PAx) 、 (ABy, ACy, PAy)都垂直 即求后两个向量叉积
@@ -93,14 +93,19 @@ Eigen::Vector3f Rasterizer::baryCentric(const std::vector<Eigen::Vector3f>& v, f
 	ab = v[1] - v[0];
 	ac = v[2] - v[0];
 	pa = v[0] - p;*/
-	Eigen::Vector3f p(x, y, 1);
-	Eigen::Vector3f s1(v[1].x() - v[0].x(), v[2].x() - v[0].x(), v[0].x() - p.x());
-	Eigen::Vector3f s2(v[1].y() - v[0].y(), v[2].y() - v[0].y(), v[0].y() - p.y());
+	Eigen::Vector3f s1(v[1].x() - v[0].x(), v[2].x() - v[0].x(), v[0].x() - x);
+	Eigen::Vector3f s2(v[1].y() - v[0].y(), v[2].y() - v[0].y(), v[0].y() - y);
 	Eigen::Vector3f bcCood = s1.cross(s2);
 
-	if (std::abs(bcCood.z() > 1e-2))
-		return Eigen::Vector3f(1.0f - (bcCood.x() + bcCood.y()) / bcCood.z(), bcCood.x() / bcCood.z(), bcCood.y() / bcCood.z());
-	return Eigen::Vector3f(-1, 1, 1);
+	if (std::abs(bcCood.z() > 1e-2)) {
+		bary.x() = 1.0f - (bcCood.x() + bcCood.y()) / bcCood.z();
+		bary.y() = bcCood.x() / bcCood.z();
+		bary.z() = bcCood.y() / bcCood.z();
+		return;
+	}
+	bary.x() = -1; 
+	bary.y() = 1; 
+	bary.z() = 1;
 }
 
 bool Rasterizer::inside_triangle(std::vector<Eigen::Vector3f>& triangle, float x, float y, Eigen::Vector3f& bcCoord) const
@@ -117,13 +122,14 @@ void Rasterizer::draw_triangle(std::vector<Eigen::Vector3f>& v, IShader* shader)
 	float y_min = std::max(0.0f, std::min({ v[0].y(),v[1].y(),v[2].y() }));
 	float y_max = std::min(float(height), std::max({ v[0].y(),v[1].y(),v[2].y() }));
 
+	Eigen::Vector3f bcCoord;
 	for (int x = x_min; x <= x_max; x++) {
 		for (int y = y_min; y <= y_max; y++) {
-			Eigen::Vector3f bcCoord = baryCentric(v, x, y);
+			baryCentric(v, x, y, bcCoord);
 			if (inside_triangle(v, x, y, bcCoord)) {
 				float alpha = bcCoord.x(), beta = bcCoord.y(), gamma = bcCoord.z();
 				float zp = 1.0f / (alpha / v[0].z() + beta / v[1].z() + gamma / v[2].z());
-				int index = get_index(Eigen::Vector2i(x, y));
+				int index = get_index(x, y);
 
 				if (zp > depth_buf[index]) {
 					depth_buf[index] = zp;
@@ -221,6 +227,6 @@ void Rasterizer::set_projection()
 	this->Projection_mat = n * p * m;
 }
 
-int Rasterizer::get_index(Eigen::Vector2i point){
-	return (height - 1 - point.y()) * width + point.x();
+int Rasterizer::get_index(int x, int y){
+	return (height - 1 - y) * width + x;
 }

@@ -36,13 +36,13 @@ public:
 protected:
 
 	// 基础绘制操作
-	Eigen::Vector3f baryCentric(const std::vector<Eigen::Vector3f>& v, float x, float y) const;
+	void baryCentric(const std::vector<Eigen::Vector3f>& v, float x, float y, Eigen::Vector3f& bary) const;
 	void draw_line(const Eigen::Vector2f& begin, const Eigen::Vector2f& end, const Eigen::Vector3f& color);
 	bool inside_triangle(std::vector<Eigen::Vector3f>& v, float x, float y, Eigen::Vector3f& bcCoord) const;
 	void draw_triangle(std::vector<Eigen::Vector3f>& v, IShader* shader);
 
 	// 缓冲区操作
-	int get_index(Eigen::Vector2i point);
+	int get_index(int x, int y);
 
 private:	
 
