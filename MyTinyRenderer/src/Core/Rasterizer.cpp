@@ -124,7 +124,8 @@ void Rasterizer::draw_triangle(std::vector<Eigen::Vector3f>& v, IShader* shader)
 				Eigen::Vector2f point(x, y);
 				if (zp > get_depth(point)) {
 					set_depth(point, zp);
-					Eigen::Vector3f zcolor = shader->fragment(bcCoord);
+					Eigen::Vector3f zcolor;
+					shader->fragment(bcCoord, zcolor);
 					set_pixel(point, zcolor);
 				}
 			}
@@ -141,22 +142,16 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 
 	for (int i = 0; i < model_data->nfaces(); i++) {
 		int ClipStateCode = 15;
-		//bool OutBoundJump = false;
+		//bool BackClip = false;
 		std::vector<Eigen::Vector3f> coords(3);
 		for (int j = 0; j < 3; j++) {
-			coords[j] = shader->vertex(i, j);
+			shader->vertex(i, j, coords[j]);
 			ClipStateCode &= (coords[j].x() < 0)			<< 0;
-			ClipStateCode &= (coords[j].x() > width)	<<1;
+			ClipStateCode &= (coords[j].x() > width)	<< 1;
 			ClipStateCode &= (coords[j].y() < 0)			<< 2;
 			ClipStateCode &= (coords[j].y() > height)	<< 3;
-			/*if (coords[j].x() < 0 || coords[j].x() > width || coords[j].y() < 0 || coords[j].y() > height)
-			{
-				OutBoundJump = true;
-				break;
-			}*/
+			// TODO 直接遍历顶点数组增加code 目前遍历了索引
 		}
-		// 是否超出屏幕
-		//if (OutBoundJump) { continue; }
 		if (ClipStateCode > 0) { continue; }
 
 		{
