@@ -13,7 +13,6 @@ Rasterizer::Rasterizer(int w, int h, int eyefov, float zn, float zf, const Eigen
 	cur_time.resize(3);
 #endif // TIME_REC
 
-	
 }
 
 void Rasterizer::clear(Buffers buff)
@@ -38,6 +37,8 @@ void Rasterizer::show()
 
 void Rasterizer::draw_line(const Eigen::Vector2f& begin, const Eigen::Vector2f& end, const Eigen::Vector3f& color)
 {
+	assert(0,"has not been design");
+	// 点着色未修改
 	bool steep = false;
 	int x0 = begin.x(), y0 = begin.y();
 	int x1 = end.x(), y1 = end.y();
@@ -56,11 +57,12 @@ void Rasterizer::draw_line(const Eigen::Vector2f& begin, const Eigen::Vector2f& 
 	float error = 0;
 	int y = y0;
 	for (int x = x0; x <= x1; x++) {
+		
 		if (steep) {
-			set_pixel(Eigen::Vector2f(y, x), color);
+			//set_pixel(Eigen::Vector2f(y, x), color);
 		}
 		else {
-			set_pixel(Eigen::Vector2f(x, y), color);
+			//set_pixel(Eigen::Vector2f(x, y), color);
 		}
 		error += derror;
 		if (error > 0.5) {
@@ -144,18 +146,9 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 	shader->mvp = this->Projection_mat * this->View_mat * this->Model_mat;
 
 	for (int i = 0; i < model_data->nfaces(); i++) {
-		int ClipStateCode = 15;
-		//bool BackClip = false;
 		std::vector<Eigen::Vector3f> coords(3);
-		for (int j = 0; j < 3; j++) {
+		for (int j = 0; j < 3; j++) 
 			shader->vertex(i, j, coords[j]);
-			ClipStateCode &= (coords[j].x() < 0)			<< 0;
-			ClipStateCode &= (coords[j].x() > width)	<< 1;
-			ClipStateCode &= (coords[j].y() < 0)			<< 2;
-			ClipStateCode &= (coords[j].y() > height)	<< 3;
-			// TODO 直接遍历顶点数组增加code 目前遍历了索引
-		}
-		if (ClipStateCode > 0) { continue; }
 
 		{
 			// 背面剔除
@@ -164,6 +157,7 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 			if (AB.x() * AC.y() - AC.x() * AB.y() <= 0)
 				continue;
 		}
+
 		draw_triangle(coords, shader);
 	}
 }
