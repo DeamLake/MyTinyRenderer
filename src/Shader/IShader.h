@@ -2,6 +2,7 @@
 #include <vector>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
+#include <memory>
 #include "model.h"
 using namespace glm;
 
@@ -16,7 +17,7 @@ public:
 public:
 	Model* model;
 	mat4x4 World_mat, ViewProj_mat;
-	vec3 LightPos, LightColor, ViewPos;
+	std::shared_ptr<vec3> pLightPos, pLightColor, pViewPos;
 
 protected:
 	std::vector<vec3> VertPosition;

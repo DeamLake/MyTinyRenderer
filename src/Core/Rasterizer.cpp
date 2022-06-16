@@ -17,46 +17,48 @@ void Rasterizer::ClearDepth()
 	}
 }
 
-void Rasterizer::set_model(float angle, float scale) 
+glm::mat4 Rasterizer::calculate_model(float angle, float scale, const glm::vec3& trans)
 {
 	glm::mat4 rotation, scaletion, translate;
 	angle = angle * MY_PI / 180.0f;
 
-	float rotation_list[16] = { cos(angle), -sin(angle), 0, 0,
-								sin(angle), cos(angle), 0, 0,
-								0, 0, 1, 0,
-								0, 0, 0, 1 };
-	rotation = glm::make_mat4(rotation_list);
+	float rotation_list[16] = { cos(angle), 0,-sin(angle), 0,
+											0, 1, 0, 0,
+											sin(angle), 0, cos(angle), 0,
+											0, 0, 0, 1 };
+
+	rotation = transpose(glm::make_mat4(rotation_list));
 
 	float scaletion_list[16] = { scale, 0, 0, 0,
 											0, scale, 0, 0,
 											0, 0, scale, 0,
 											0, 0, 0, 1 };
-	scaletion = glm::make_mat4(scaletion_list);
 
-	float translate_list[16] = { 1, 0, 0, 0,
-											0, 1, 0, 0,
-											0, 0, 1, 0,
+	scaletion = transpose(glm::make_mat4(scaletion_list));
+
+	float translate_list[16] = { 1, 0, 0, trans.x,
+											0, 1, 0, trans.y,
+											0, 0, 1, trans.z,
 											0, 0, 0, 1 };
-	translate = glm::make_mat4(translate_list);
 
-	this->Model_mat = translate * scaletion * rotation;
+	translate = transpose(glm::make_mat4(translate_list));
+	return translate * scaletion * rotation;
 }
 
-void Rasterizer::set_view(const glm::vec3& view_point)
+void Rasterizer::update_view()
 {
-	float view_list[16] = { 1,0,0,-view_point[0],
-									0,1,0,-view_point[1],
-									0,0,1,-view_point[2],
+	float view_list[16] = { 1,0,0,-pViewPoint->x,
+									0,1,0,-pViewPoint->y,
+									0,0,1,-pViewPoint->z,
 									0,0,0,1 };
-	this->View_mat = transpose(glm::make_mat4(view_list));
+
+	this->ViewMat = transpose(glm::make_mat4(view_list));
 }
 
-void Rasterizer::set_projection(float zNear, float zFar, float eye_fov)
+void Rasterizer::update_projection(float zNear, float zFar, float eye_fov)
 {
 	float aspect_ratio = static_cast<float>(width) / height;
 	glm::mat4 m, n, p;
-
 
 	float m_list[16] = { zNear,0,0,0,
 									0,zNear,0,0,
@@ -82,7 +84,29 @@ void Rasterizer::set_projection(float zNear, float zFar, float eye_fov)
 	m = transpose(glm::make_mat4(m_list));
 	n = transpose(glm::make_mat4(n_list));
 	p = transpose(glm::make_mat4(p_list));
-	this->Projection_mat = n * p * m;
+	this->ProjectionMat = n * p * m;
+}
+
+void Rasterizer::SetUpEnvironment(EnvData* data)
+{
+	this->pViewPoint = std::make_shared<glm::vec3>(data->view_point);
+	this->pLightPos = std::make_shared<glm::vec3>(data->LightPos);
+	this->pLightColor = std::make_shared<glm::vec3>(data->LightColor);
+	update_view();
+	update_projection(data->zNear, data->zFar, data->eye_fov);
+}
+
+void Rasterizer::Add_Object(ModelData data)
+{
+	IShader* shader = data.shader;
+	shader->set_model_data(data.model);
+	shader->World_mat = calculate_model(data.yangle, data.scale, data.translate);
+	shader->ViewProj_mat = ProjectionMat * ViewMat;
+	shader->pLightPos = pLightPos;
+	shader->pLightColor = pLightColor;
+	shader->pViewPos = pViewPoint;
+	gObjects->push_back(data);
+	gObjectSize++;
 }
 
 void Rasterizer::draw_model(Model* model_data, IShader* shader) 

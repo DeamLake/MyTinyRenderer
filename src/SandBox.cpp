@@ -1,12 +1,12 @@
 ﻿/// <summary>
 /// 沙盒程序
 /// </summary>
+/// #include <direct.h>
 #include "WinApp.h"
 #include "Rasterizer.h"
-#include "Config.h"
 #include "model.h"
 #include "BlingPhongShader.h"
-#include <direct.h>
+
 
 class SandBoxApp :public WinApp 
 {
@@ -19,17 +19,17 @@ protected:
 	bool InitializeRasterizer();
 	virtual int Run()override;
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
+	void OnKeyboardInput();
 	void Clear();
 
 protected:
 	Rasterizer r;
-	IShader* shader = nullptr;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
-	WinApp* app = new SandBoxApp(hInstance, WindowWidth, WindowHeight, WinName);
+	WinApp* app = new SandBoxApp(hInstance, 800, 800, "Peach Renderer");
 	
 	if (!app->Initialize())
 		return 0;
@@ -52,28 +52,32 @@ bool SandBoxApp::Initialize()
 // 初始化Rasterizer
 bool SandBoxApp::InitializeRasterizer() 
 {
-	// 配置
-	glm::vec3 view_point(0, 0, 4);
-	const int eye_fov = 45;
-	const float zNear = -0.1f;
-	const float zFar = -500.0f;
-
 	// 设置HDC
 	r.SetHDC(gScreenHdc);
 
-	//三个矩阵
+	// 环境配置
+	EnvData* envData = new EnvData();
+	envData->view_point = glm::vec3(0, 0, 4);
+	envData->LightColor = glm::vec3(255, 255, 255);
+	envData->LightPos = glm::vec3(1, 1, 3);
+	envData->zNear = -0.1f;
+	envData->zFar = -500.0F;
+	envData->eye_fov = 45;
+	r.SetUpEnvironment(envData);
 
-	r.set_model(0, 1.0f);
-	r.set_view(view_point);
-	r.set_projection(zNear, zFar, eye_fov);
-	Model* model = new Model("../Resources/african_head/african_head.obj");
-	shader = new BlingPhongShader();
-	shader->set_model_data(model);
-	shader->World_mat = r.Model_mat;
-	shader->ViewProj_mat = r.Projection_mat * r.View_mat;
-	shader->LightPos = glm::vec3(0, 1, 3);
-	shader->LightColor = glm::vec3(255, 255, 255);
-	shader->ViewPos = view_point;
+	// 对象配置
+	ModelData modelData;
+	modelData.model = new Model("../Resources/african_head/african_head.obj");
+	modelData.shader = new BlingPhongShader();
+	modelData.translate = glm::vec3(1, 0, 0);
+	modelData.yangle = 0.0f;
+	modelData.scale = 1.0f;
+	r.Add_Object(modelData);
+
+	modelData.model = new Model("../Resources/african_head/african_head.obj");
+	modelData.shader = new BlingPhongShader();
+	modelData.translate = glm::vec3(-1, 0, 0);
+	r.Add_Object(modelData);
 
 	return true;
 }
@@ -94,7 +98,12 @@ int SandBoxApp::Run()
 		else
 		{
 			Clear();
-			r.draw_model(shader->model, shader);
+			
+			for (int i = 0; i < r.getSizeOfObject(); i++) {
+				ModelData data = r.getNthObject(i);
+				r.draw_model(data.model, data.shader);
+			}
+
 			Show();
 			ShowFPS();
 			//mTimer.Tick();
@@ -117,6 +126,17 @@ int SandBoxApp::Run()
 
 LRESULT SandBoxApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	switch (msg)
+	{
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+	case WM_KEYUP:
+		if (wParam == VK_ESCAPE){
+			PostQuitMessage(0);
+		}
+		return 0;
+	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
