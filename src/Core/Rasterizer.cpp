@@ -113,9 +113,13 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 {
 	for (int i = 0; i < model_data->nfaces(); i++) {
 		int ClipStateCode = 63;
-		std::vector<glm::vec3> coords(3);
+		std::vector<glm::vec4> coords(3);
 		for (int j = 0; j < 3; j++) {
 			coords[j] = shader->vertex(i, j);
+			// w需要被复用  所以不能直接除
+			coords[j].x /= coords[j].w;
+			coords[j].y /= coords[j].w;
+			coords[j].z /= coords[j].w;
 			int CodeTmp = 0;
 			CodeTmp |= (coords[j][0] < -1) << 0;
 			CodeTmp |= (coords[j][0] > 1) << 1;
@@ -140,14 +144,16 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 		for (int j = 0; j < 3; j++) 
 		{
 			// 屏幕坐标
-			coords[j] = glm::vec3((coords[j].x + 1.0f) * (width - 1) / 2, (coords[j].y + 1.0f) * (height - 1) / 2, coords[j].z);
+			coords[j].x = (coords[j].x + 1.0f)* (width - 1) / 2;
+			coords[j].y = (coords[j].y + 1.0f) * (height - 1) / 2;
+			coords[j].z = coords[j].z;
 		}
 
 		draw_triangle(coords, shader);
 	}
 }
 
-glm::vec3 Rasterizer::baryCentric(const std::vector<glm::vec3>& v, float x, float y) const 
+glm::vec3 Rasterizer::baryCentric(const std::vector<glm::vec4>& v, float x, float y) const 
 {
 	glm::vec3 s1(v[1].x - v[0].x, v[2].x - v[0].x, v[0].x - x);
 	glm::vec3 s2(v[1].y - v[0].y, v[2].y - v[0].y, v[0].y - y);
@@ -169,7 +175,7 @@ bool Rasterizer::inside_triangle(glm::vec3& bcCoord) const
 	return true;
 }
 
-void Rasterizer::draw_triangle(std::vector<glm::vec3>& v, IShader* shader) 
+void Rasterizer::draw_triangle(std::vector<glm::vec4>& v, IShader* shader) 
 {
 	float x_min = max(0.01f, min(v[0].x,min(v[1].x,v[2].x)));
 	float x_max = min(width - 0.01f, max(v[0].x,max(v[1].x,v[2].x)));
@@ -181,11 +187,11 @@ void Rasterizer::draw_triangle(std::vector<glm::vec3>& v, IShader* shader)
 			glm::vec3 bcCoord = baryCentric(v, x, y);
 			if (inside_triangle(bcCoord)) {
 				float alpha = bcCoord.x, beta = bcCoord.y, gamma = bcCoord.z;
-				float zp = 1.0f / (alpha / v[0].z + beta / v[1].z + gamma / v[2].z);
+				float zp = 1.0f / (alpha / v[0].w + beta / v[1].w + gamma / v[2].w);
 
 				if (zp > gDepthBuffer.Sample(x, y)) {
 					SetDepth(x, y, zp);
-					glm::vec3 color = shader->fragment(bcCoord, glm::vec3(v[0].z,v[1].z,v[2].z));
+					glm::vec3 color = shader->fragment(bcCoord, glm::vec3(v[0].w,v[1].w,v[2].w));
 					DrawPixel(x, y, color);
 				}
 			}

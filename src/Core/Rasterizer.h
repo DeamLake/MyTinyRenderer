@@ -33,9 +33,9 @@ public:
 
 private:
 	// ÄÚ²¿º¯Êý
-	glm::vec3 baryCentric(const std::vector<glm::vec3>& v, float x, float y) const;
+	glm::vec3 baryCentric(const std::vector<glm::vec4>& v, float x, float y) const;
 	bool inside_triangle(glm::vec3& bcCoord) const;
-	void draw_triangle(std::vector<glm::vec3>& v, IShader* shader);
+	void draw_triangle(std::vector<glm::vec4>& v, IShader* shader);
 	void DrawPixel(int x, int y, glm::vec3& color);
 	void SetDepth(int x, int y, float depth);
 

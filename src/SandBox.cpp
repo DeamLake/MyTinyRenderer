@@ -57,7 +57,7 @@ bool SandBoxApp::InitializeRasterizer()
 
 	// 环境配置
 	EnvData* envData = new EnvData();
-	envData->view_point = glm::vec3(0, 0, 4);
+	envData->view_point = glm::vec3(0, 0, 3);
 	envData->LightColor = glm::vec3(255, 255, 255);
 	envData->LightPos = glm::vec3(1, 1, 3);
 	envData->zNear = -0.1f;
@@ -69,13 +69,13 @@ bool SandBoxApp::InitializeRasterizer()
 	ModelData modelData;
 	modelData.model = new Model("../Resources/african_head/african_head.obj");
 	modelData.shader = new BlingPhongShader();
-	modelData.translate = glm::vec3(1, 0, 0);
+	modelData.translate = glm::vec3(-1, 0, 0);
 	modelData.yangle = 0.0f;
 	modelData.scale = 1.0f;
 	r.Add_Object(modelData);
 
 	modelData.shader = new GouraudShader();
-	modelData.translate = glm::vec3(-1, 0, 0);
+	modelData.translate = glm::vec3(1, 0, 0);
 	r.Add_Object(modelData);
 
 	return true;

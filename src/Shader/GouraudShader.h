@@ -6,11 +6,12 @@ class GouraudShader : public IShader
 public:
 	GouraudShader() : IShader() {}
 
-	vec3 vertex(int iface, int nthvert) final {
+	vec4 vertex(int iface, int nthvert) final {
 		// 获取坐标
-		VertPosition[nthvert] = model->vert(model->face(iface)[nthvert]);
+		vec4 position(model->vert(model->face(iface)[nthvert]), 1);
 		// 转换到世界坐标
-		VertPosition[nthvert] = mvp_translate(VertPosition[nthvert], World_mat);
+		position = World_mat * position;
+		VertPosition[nthvert] = position;
 
 		// 获取法向量
 		VertNormal[nthvert] = model->norm(iface, nthvert);
@@ -21,7 +22,7 @@ public:
 		VertUV[nthvert] = model->uv(iface, nthvert);
 
 		// 返回NDC坐标
-		return mvp_translate(VertPosition[nthvert], ViewProj_mat);
+		return ViewProj_mat * position;
 	}
 
 	vec3 fragment(const vec3& bary, vec3 zs) final {
