@@ -112,14 +112,18 @@ void Rasterizer::Add_Object(ModelData data)
 void Rasterizer::draw_model(Model* model_data, IShader* shader) 
 {
 	for (int i = 0; i < model_data->nfaces(); i++) {
-		int ClipStateCode = 15;
+		int ClipStateCode = 63;
 		std::vector<glm::vec3> coords(3);
 		for (int j = 0; j < 3; j++) {
 			coords[j] = shader->vertex(i, j);
-			ClipStateCode &= (coords[j][0] < 0) << 0;
-			ClipStateCode &= (coords[j][0] > 1) << 1;
-			ClipStateCode &= (coords[j][1] < 0) << 2;
-			ClipStateCode &= (coords[j][1] > 1) << 3;
+			int CodeTmp = 0;
+			CodeTmp |= (coords[j][0] < -1) << 0;
+			CodeTmp |= (coords[j][0] > 1) << 1;
+			CodeTmp |= (coords[j][1] < -1) << 2;
+			CodeTmp |= (coords[j][1] > 1) << 3;
+			CodeTmp |= (coords[j][2] < -1) << 4;
+			CodeTmp |= (coords[j][2] > 1) << 5;
+			ClipStateCode &= CodeTmp;
 		}
 
 		// NDC ²Ã¼ô

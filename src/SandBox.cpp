@@ -5,7 +5,7 @@
 #include "WinApp.h"
 #include "Rasterizer.h"
 #include "model.h"
-#include "BlingPhongShader.h"
+#include "Shaders.h"
 
 
 class SandBoxApp :public WinApp 
@@ -29,7 +29,7 @@ protected:
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
-	WinApp* app = new SandBoxApp(hInstance, 800, 800, "Peach Renderer");
+	WinApp* app = new SandBoxApp(hInstance, 1600, 800, "Peach Renderer");
 	
 	if (!app->Initialize())
 		return 0;
@@ -74,8 +74,7 @@ bool SandBoxApp::InitializeRasterizer()
 	modelData.scale = 1.0f;
 	r.Add_Object(modelData);
 
-	modelData.model = new Model("../Resources/african_head/african_head.obj");
-	modelData.shader = new BlingPhongShader();
+	modelData.shader = new GouraudShader();
 	modelData.translate = glm::vec3(-1, 0, 0);
 	r.Add_Object(modelData);
 
@@ -88,13 +87,11 @@ int SandBoxApp::Run()
 
 	while (msg.message != WM_QUIT)
 	{
-		// If there are Window messages then process them.
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		// Otherwise, do animation/game stuff.
 		else
 		{
 			Clear();
@@ -106,18 +103,6 @@ int SandBoxApp::Run()
 
 			Show();
 			ShowFPS();
-			//mTimer.Tick();
-
-			/*if (!mAppPaused)
-			{
-				CalculateFrameStats();
-				Update(mTimer);
-				Draw(mTimer);
-			}
-			else
-			{
-				Sleep(100);
-			}*/
 		}
 	}
 
