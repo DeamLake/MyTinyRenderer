@@ -57,7 +57,7 @@ bool SandBoxApp::InitializeRasterizer()
 
 	// 环境配置
 	EnvData* envData = new EnvData();
-	envData->view_point = glm::vec3(0, 0, 3);
+	envData->view_point = glm::vec3(0, 0.5f, 3);
 	envData->LightColor = glm::vec3(255, 255, 255);
 	envData->LightPos = glm::vec3(1, 1, 3);
 	envData->zNear = -0.1f;
@@ -69,19 +69,33 @@ bool SandBoxApp::InitializeRasterizer()
 	ModelData modelData;
 	modelData.model = new Model("../Resources/african_head/african_head.obj");
 	modelData.shader = new GouraudShader();
-	modelData.translate = glm::vec3(1, 0, 0);
+	modelData.translate = glm::vec3(0, -1.0f, -2);
+	modelData.scales = glm::vec3(0.5f, 0.5f, 0.5f);
 	modelData.yangle = 0.0f;
-	modelData.scale = 1.0f;
 	r.Add_Object(modelData);
 
 	modelData.model = new Model("../Resources/african_head/african_head_eye_inner.obj");
 	modelData.shader = new GouraudShader();
 	r.Add_Object(modelData);
 
-	modelData.model = new Model("../Resources/diablo/diablo3_pose.obj");
-	modelData.shader = new BlingPhongShader();
-	modelData.translate = glm::vec3(-1, 0, 0);
+	modelData.model = new Model("../Resources/floor.obj");
+	modelData.shader = new GouraudShader();
+	modelData.translate = glm::vec3(0, 0.18f, -1.2f);
+	modelData.scales = glm::vec3(4, 1, 2);
 	r.Add_Object(modelData);
+
+	/*modelData.model = new Model("../Resources/boggie/body.obj");
+	modelData.shader = new GouraudShader();
+	modelData.translate = glm::vec3(1, 0, 0);
+	r.Add_Object(modelData);
+
+	modelData.model = new Model("../Resources/boggie/head.obj");
+	modelData.shader = new GouraudShader();
+	r.Add_Object(modelData);
+
+	modelData.model = new Model("../Resources/boggie/eyes.obj");
+	modelData.shader = new GouraudShader();
+	r.Add_Object(modelData);*/
 
 	return true;
 }

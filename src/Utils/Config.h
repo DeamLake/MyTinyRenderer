@@ -13,8 +13,8 @@ struct EnvData
 
 struct ModelData
 {
-	glm::vec3 translate;
-	float yangle, scale;
+	glm::vec3 translate, scales;
+	float yangle;
 	IShader* shader;
 	Model* model;
 };

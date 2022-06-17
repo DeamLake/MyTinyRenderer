@@ -17,7 +17,7 @@ void Rasterizer::ClearDepth()
 	}
 }
 
-glm::mat4 Rasterizer::calculate_model(float angle, float scale, const glm::vec3& trans)
+glm::mat4 Rasterizer::calculate_model(float angle, const glm::vec3& scales, const glm::vec3& trans)
 {
 	glm::mat4 rotation, scaletion, translate;
 	angle = angle * MY_PI / 180.0f;
@@ -29,9 +29,9 @@ glm::mat4 Rasterizer::calculate_model(float angle, float scale, const glm::vec3&
 
 	rotation = glm::make_mat4(rotation_list);
 
-	float scaletion_list[16] = { scale, 0, 0, 0,
-											0, scale, 0, 0,
-											0, 0, scale, 0,
+	float scaletion_list[16] = { scales.x, 0, 0, 0,
+											0, scales.y, 0, 0,
+											0, 0, scales.z, 0,
 											0, 0, 0, 1 };
 
 	scaletion = glm::make_mat4(scaletion_list);
@@ -42,8 +42,7 @@ glm::mat4 Rasterizer::calculate_model(float angle, float scale, const glm::vec3&
 											0, 0, 0, 1 };
 
 	translate = glm::make_mat4(translate_list);
-
-	return rotation * scaletion * translate;
+	return translate * scaletion * rotation;
 }
 
 void Rasterizer::update_view()
@@ -101,7 +100,7 @@ void Rasterizer::Add_Object(ModelData data)
 {
 	IShader* shader = data.shader;
 	shader->set_model_data(data.model);
-	shader->World_mat = calculate_model(data.yangle, data.scale, data.translate);
+	shader->World_mat = calculate_model(data.yangle, data.scales, data.translate);
 	shader->ViewProj_mat = ViewMat * ProjectionMat;
 	shader->pLightPos = pLightPos;
 	shader->pLightColor = pLightColor;

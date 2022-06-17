@@ -20,7 +20,7 @@ public:
 public:
 	void ClearDepth();
 	void SetHDC(HDC hdc) { gScreenHdc = hdc; }
-	glm::mat4 calculate_model(float angle, float scale, const glm::vec3& trans);
+	glm::mat4 calculate_model(float angle, const glm::vec3& scales, const glm::vec3& trans);
 	void update_view();
 	void update_projection(float zNear, float zFar, float eye_fov);
 
