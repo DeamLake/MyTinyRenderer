@@ -10,7 +10,7 @@ using namespace glm;
 
 class IShader {
 public:
-	IShader() :VertPosition(3), VertNormal(3), VertUV(3), model(nullptr), World_mat(), ViewProj_mat() {}
+	IShader() :VertPosition(3), VertUV(3), model(nullptr), World_mat(), ViewProj_mat() {}
 	virtual ~IShader() {}
 	void set_model_data(Model* model_data) { model = model_data; }
 	virtual vec4 vertex(int iface, int nthvert) = 0;
@@ -22,7 +22,6 @@ public:
 
 protected:
 	std::vector<vec3> VertPosition;
-	std::vector<vec3> VertNormal;
 	std::vector<vec2> VertUV;
 	
 };

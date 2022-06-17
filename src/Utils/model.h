@@ -1,32 +1,33 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 #include "tgaimage.h"
-typedef glm::vec3 Vec3f;
-typedef glm::vec2 Vec2f;
-typedef glm::ivec3 Vec3i;
-typedef glm::ivec2 Vec2i;
+#include<glm/vec2.hpp>
+#include<glm/vec3.hpp>
+#include<glm/mat4x4.hpp>
+using namespace glm;
 
 class Model {
-private:
-    std::vector<Vec3f> verts_;
-    std::vector<std::vector<Vec3i> > faces_; // attention, this Vec3i means vertex/uv/normal
-    std::vector<Vec3f> norms_;
-    std::vector<Vec2f> uv_;
-    TGAImage diffusemap_;
-    void load_texture(std::string filename, const char* suffix, TGAImage& img);
+    std::vector<vec3> verts{};     // array of vertices
+    std::vector<vec2> tex_coord{}; // per-vertex array of tex coords
+    std::vector<vec3> norms{};     // per-vertex array of normal vectors
+    std::vector<int> facet_vrt{};
+    std::vector<int> facet_tex{};  // per-triangle indices in the above arrays
+    std::vector<int> facet_nrm{};
+    TGAImage diffusemap{};         // diffuse color texture
+    TGAImage normalmap{};          // normal map texture
+    TGAImage specularmap{};        // specular map texture
+    void load_texture(const std::string filename, const std::string suffix, TGAImage& img);
 public:
-    Model(const char* filename);
-    ~Model();
-    int nverts();
-    int nfaces();
-    Vec3f norm(int iface, int nvert);
-    Vec3f vert(int i);
-    Vec2i uv(int iface, int nvert);
-    TGAColor diffuse(Vec2i uv);
-    std::vector<int> face(int idx);
+    Model(const std::string filename);
+    int nverts() const;
+    int nfaces() const;
+    vec3 normal(const int iface, const int nthvert) const; // per triangle corner normal vertex
+    vec3 normal(const vec2& uv);                     // fetch the normal vector from the normal map texture
+    vec3 vert(const int i) const;
+    vec3 vert(const int iface, const int nthvert) const;
+    vec2 uv(const int iface, const int nthvert) const;
+    const TGAImage& diffuse()  const { return diffusemap; }
+    TGAColor diffuse(vec2 uv);
+    const TGAImage& specular() const { return specularmap; }
 };
-
-
