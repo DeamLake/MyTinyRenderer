@@ -30,4 +30,5 @@ public:
     const TGAImage& diffuse()  const { return diffusemap; }
     TGAColor diffuse(vec2 uv);
     const TGAImage& specular() const { return specularmap; }
+    float specular(vec2 uv);
 };
