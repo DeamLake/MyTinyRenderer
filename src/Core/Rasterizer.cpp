@@ -209,6 +209,7 @@ void Rasterizer::draw_triangle(std::vector<glm::vec4>& v, IShader* shader)
 			}
 		}
 	}
+
 }
 
 void Rasterizer::DrawPixel(int x, int y, glm::vec3& color)

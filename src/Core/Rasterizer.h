@@ -8,6 +8,7 @@
 #include "Buffer.h"
 #include "IShader.h"
 #include "Config.h"
+#include <tbb/tbb/parallel_for.h>
 
 #define MY_PI 3.1415926
 
