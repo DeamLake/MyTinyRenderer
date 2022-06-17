@@ -194,6 +194,26 @@ void Rasterizer::draw_triangle(std::vector<glm::vec4>& v, IShader* shader)
 	float y_min = max(0.01f, min(v[0].y,min(v[1].y,v[2].y)));
 	float y_max = min(height - 0.01f, max(v[0].y, max(v[1].y,v[2].y)));
 
+	/*tbb::parallel_for(tbb::blocked_range<size_t>(x_min, x_max),
+		[&](tbb::blocked_range<size_t> r) {
+			for (size_t x = r.begin(); x < r.end(); ++x)
+			{
+				for (int y = y_min; y <= y_max; y++) {
+					glm::vec3 bcCoord = baryCentric(v, x, y);
+					if (inside_triangle(bcCoord)) {
+						float alpha = bcCoord.x, beta = bcCoord.y, gamma = bcCoord.z;
+						float zp = 1.0f / (alpha / v[0].w + beta / v[1].w + gamma / v[2].w);
+
+						if (zp > gDepthBuffer.Sample(x, y)) {
+							SetDepth(x, y, zp);
+							glm::vec3 color = shader->fragment(bcCoord, glm::vec3(v[0].w, v[1].w, v[2].w));
+							DrawPixel(x, y, color);
+						}
+					}
+				}
+			}
+		});*/
+
 	for (int x = x_min; x <= x_max; x++) {
 		for (int y = y_min; y <= y_max; y++) {
 			glm::vec3 bcCoord = baryCentric(v, x, y);
