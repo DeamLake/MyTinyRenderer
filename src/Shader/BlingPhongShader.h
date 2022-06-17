@@ -27,26 +27,22 @@ public:
 		vec2 uv = (alpha * VertUV[0] / zs[0] + beta * VertUV[1] / zs[1] + gamma * VertUV[2] / zs[2]) * zp;
 		vec3 normal = model->normal(uv);
 
-		vec3 lightColor = *pLightColor;
-		vec3 lightPos = *pLightPos;
-		vec3 viewPos = *pViewPos;
-
 		// ambient
 		float ambientStrength = 0.05f;
-		vec3 ambient = ambientStrength * lightColor;
+		vec3 ambient = ambientStrength * pLightColor;
 
 		// diffuse 
 		normal = normalize(normal);
-		vec3 lightDir = normalize(lightPos - position);
+		vec3 lightDir = normalize(pLightPos - position);
 		float diff = max(dot(normal, lightDir), 0.0f);
-		vec3 diffuse = diff * lightColor;
+		vec3 diffuse = diff * pLightColor;
 
 		// specular
 		float specularStrength = 0.1;
-		vec3 viewDir = normalize(viewPos - position);
+		vec3 viewDir = normalize(pViewPos - position);
 		vec3 midDir = normalize(lightDir + viewDir);
 		float spec = pow(max(dot(normal, midDir), 0.0f), 32);
-		vec3 specular = specularStrength * spec * lightColor;
+		vec3 specular = specularStrength * spec * pLightColor;
 
 		return ambient + diffuse + specular;
 	}

@@ -20,7 +20,7 @@ public:
 public:
 	Model* model = nullptr;
 	mat4x4 World_mat, ViewProj_mat;
-	std::shared_ptr<vec3> pLightPos, pLightColor, pViewPos;
+	vec3 pLightPos, pLightColor, pViewPos;
 
 protected:
 	std::vector<vec3> VertPosition, VertNormal;

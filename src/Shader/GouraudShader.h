@@ -29,11 +29,10 @@ public:
 		vec2 uv = (alpha * VertUV[0] / zs[0] + beta * VertUV[1] / zs[1] + gamma * VertUV[2] / zs[2]) * zp;
 		vec3 position = (alpha * VertPosition[0] / zs[0] + beta * VertPosition[1] / zs[1] + gamma * VertPosition[2] / zs[2]) * zp;
 		vec3 normal = normalize((alpha * VertNormal[0] / zs[0] + beta * VertNormal[1] / zs[1] + gamma * VertNormal[2] / zs[2]) * zp);
-		vec3 lightDir = normalize(*pLightPos - position);
-		vec3 viewDir = normalize(*pViewPos - position);
+		vec3 lightDir = normalize(pLightPos - position);
+		vec3 viewDir = normalize(pViewPos - position);
 		
-
-		// tbn ×ª»»
+		// tbn ×ª»» normal mapping
 		mat3x3 AI = inverse(mat3x3{ VertPosition[1] - VertPosition[0], VertPosition[2] - VertPosition[0], normal });
 		vec3 i = vec3(VertUV[1][0] - VertUV[0][0], VertUV[2][0] - VertUV[0][0], 0) * AI;
 		vec3 j = vec3(VertUV[1][1] - VertUV[0][1], VertUV[2][1] - VertUV[0][1], 0) * AI;
@@ -41,7 +40,7 @@ public:
 		normal = normalize(model->normal(uv) * TBN);
 
 		vec3 midDir = normalize(lightDir + viewDir);
-		float spec = pow(max(0.0f, dot(midDir, normal)), model->specular(uv));
+		float spec = pow(max(0.0f, dot(midDir, normal)), model->specular(uv) );
 		float intense = max(0.0f, dot(normal, lightDir));
 
 		TGAColor color = model->diffuse(uv);

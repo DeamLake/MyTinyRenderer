@@ -6,7 +6,7 @@
 
 struct EnvData
 {
-	glm::vec3 view_point, LightPos, LightColor;
+	glm::vec3 view_point, center, up, LightPos, LightColor;
 	float zNear, zFar;
 	int eye_fov;
 };
@@ -17,4 +17,5 @@ struct ModelData
 	float yangle;
 	IShader* shader;
 	Model* model;
+	bool rotate = true;
 };

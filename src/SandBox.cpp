@@ -57,7 +57,9 @@ bool SandBoxApp::InitializeRasterizer()
 
 	// 环境配置
 	EnvData* envData = new EnvData();
-	envData->view_point = glm::vec3(0, 0.0f, 3);
+	envData->view_point = glm::vec3(0, 2, 4);
+	envData->center = glm::vec3(0, 0, 0);
+	envData->up = glm::vec3(0, 1, 0);
 	envData->LightColor = glm::vec3(255, 255, 255);
 	envData->LightPos = glm::vec3(1, 1, 3);
 	envData->zNear = -0.1f;
@@ -94,9 +96,10 @@ bool SandBoxApp::InitializeRasterizer()
 	ModelData modelData;
 	modelData.model = new Model("../Resources/african_head/african_head.obj");
 	modelData.shader = new GouraudShader();
-	modelData.translate = glm::vec3(-1, 0, 0);
+	modelData.translate = glm::vec3(-1.5f, 0, 0);
 	modelData.scales = glm::vec3(1, 1, 1);
 	modelData.yangle = 0.0f;
+	
 	r.Add_Object(modelData);
 
 	modelData.model = new Model("../Resources/african_head/african_head_eye_inner.obj");
@@ -105,7 +108,14 @@ bool SandBoxApp::InitializeRasterizer()
 
 	modelData.model = new Model("../Resources/diablo/diablo3_pose.obj");
 	modelData.shader = new GouraudShader();
-	modelData.translate = glm::vec3(1, 0, 0);
+	modelData.translate = glm::vec3(1.5f, 0, 0);
+	r.Add_Object(modelData);
+
+	modelData.model = new Model("../Resources/floor.obj");
+	modelData.shader = new GouraudShader();
+	modelData.translate = glm::vec3(0, 0.18f, -1.2f);
+	modelData.scales = glm::vec3(4, 1, 2);
+	modelData.rotate = false;
 	r.Add_Object(modelData);
 
 	return true;
@@ -114,6 +124,8 @@ bool SandBoxApp::InitializeRasterizer()
 int SandBoxApp::Run() 
 {
 	MSG msg = { 0 };
+
+	float angle = 0;
 
 	while (msg.message != WM_QUIT)
 	{
@@ -126,8 +138,11 @@ int SandBoxApp::Run()
 		{
 			Clear();
 			
+			angle +=1.0f;
+
 			for (int i = 0; i < r.getSizeOfObject(); i++) {
 				ModelData data = r.getNthObject(i);
+				if(data.rotate){ r.rotate_object(angle, data); }
 				r.draw_model(data.model, data.shader);
 			}
 

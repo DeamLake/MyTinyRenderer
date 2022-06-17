@@ -20,13 +20,15 @@ public:
 public:
 	void ClearDepth();
 	void SetHDC(HDC hdc) { gScreenHdc = hdc; }
+	
 	glm::mat4 calculate_model(float angle, const glm::vec3& scales, const glm::vec3& trans);
-	void update_view();
+	void update_lookat();
 	void update_projection(float zNear, float zFar, float eye_fov);
 
 	void SetUpEnvironment(EnvData* data);
 	void Add_Object(ModelData data);
 	void draw_model(Model* model_data, IShader* shader);
+	void rotate_object(float angle, ModelData& data);
 
 	ModelData getNthObject(int idx) const { return (*gObjects)[idx]; }
 	int getSizeOfObject() const { return gObjectSize; }
@@ -39,14 +41,16 @@ private:
 	void DrawPixel(int x, int y, glm::vec3& color);
 	void SetDepth(int x, int y, float depth);
 
+
+
 private:
 	// 内部变量
 	int width, height;
 	HDC gScreenHdc;
 	DepthBuffer gDepthBuffer;
 	
-	glm::mat4 ViewMat, ProjectionMat;
-	std::shared_ptr<glm::vec3> pViewPoint, pLightPos, pLightColor;
+	glm::mat4 ProjectionMat, ModelViewMat;
+	glm::vec3 pViewPoint, pCenter, pUp, pLightPos, pLightColor;
 	std::shared_ptr <std::vector<ModelData>> gObjects = std::make_shared<std::vector<ModelData>>();
 	int gObjectSize = 0;
 };

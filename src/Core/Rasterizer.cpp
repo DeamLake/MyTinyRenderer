@@ -42,17 +42,22 @@ glm::mat4 Rasterizer::calculate_model(float angle, const glm::vec3& scales, cons
 											0, 0, 0, 1 };
 
 	translate = glm::make_mat4(translate_list);
-	return translate * scaletion * rotation;
+	return rotation * scaletion * translate;
 }
 
-void Rasterizer::update_view()
+void Rasterizer::update_lookat()
 {
-	float view_list[16] = { 1,0,0,-pViewPoint->x,
-									0,1,0,-pViewPoint->y,
-									0,0,1,-pViewPoint->z,
-									0,0,0,1 };
-
-	this->ViewMat = glm::make_mat4(view_list);
+	glm::vec3 z = normalize(pViewPoint - pCenter);
+	glm::vec3 x = normalize(cross(pUp, z));
+	glm::vec3 y = normalize(cross(z, x));
+	glm::mat4x4 Minv(1), Translate(1);
+	for (int i : {0, 1, 2}) {
+		Minv[0][i] = x[i];
+		Minv[1][i] = y[i];
+		Minv[2][i] = z[i];
+		Translate[i][3] = -pViewPoint[i];
+	}
+	ModelViewMat = Translate * Minv;
 }
 
 void Rasterizer::update_projection(float zNear, float zFar, float eye_fov)
@@ -89,10 +94,12 @@ void Rasterizer::update_projection(float zNear, float zFar, float eye_fov)
 
 void Rasterizer::SetUpEnvironment(EnvData* data)
 {
-	this->pViewPoint = std::make_shared<glm::vec3>(data->view_point);
-	this->pLightPos = std::make_shared<glm::vec3>(data->LightPos);
-	this->pLightColor = std::make_shared<glm::vec3>(data->LightColor);
-	update_view();
+	this->pViewPoint = data->view_point;
+	this->pLightPos = data->LightPos;
+	this->pLightColor =data->LightColor;
+	this->pCenter = data->center;
+	this->pUp = data->up;
+	update_lookat();
 	update_projection(data->zNear, data->zFar, data->eye_fov);
 }
 
@@ -101,7 +108,7 @@ void Rasterizer::Add_Object(ModelData data)
 	IShader* shader = data.shader;
 	shader->set_model_data(data.model);
 	shader->World_mat = calculate_model(data.yangle, data.scales, data.translate);
-	shader->ViewProj_mat = ViewMat * ProjectionMat;
+	shader->ViewProj_mat = ModelViewMat * ProjectionMat;
 	shader->pLightPos = pLightPos;
 	shader->pLightColor = pLightColor;
 	shader->pViewPos = pViewPoint;
@@ -151,6 +158,11 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 
 		draw_triangle(coords, shader);
 	}
+}
+
+void Rasterizer::rotate_object(float angle, ModelData& data)
+{
+	data.shader->World_mat = calculate_model(angle, data.scales, data.translate);
 }
 
 glm::vec3 Rasterizer::baryCentric(const std::vector<glm::vec4>& v, float x, float y) const 
