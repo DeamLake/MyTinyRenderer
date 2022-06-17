@@ -10,14 +10,14 @@ public:
 		// 获取坐标
 		vec4 position(model->vert(iface,nthvert), 1);
 		// 转换到世界坐标
-		position = World_mat * position;
+		position = position * World_mat;
 		VertPosition[nthvert] = position;
 
 		// 获取纹理UV
 		VertUV[nthvert] = model->uv(iface, nthvert);
 
 		// 返回NDC坐标
-		return ViewProj_mat * position;
+		return position * ViewProj_mat;
 	}
 
 	vec3 fragment(const vec3& bary, vec3 zs) final {

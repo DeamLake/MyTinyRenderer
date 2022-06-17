@@ -27,22 +27,23 @@ glm::mat4 Rasterizer::calculate_model(float angle, float scale, const glm::vec3&
 											sin(angle), 0, cos(angle), 0,
 											0, 0, 0, 1 };
 
-	rotation = transpose(glm::make_mat4(rotation_list));
+	rotation = glm::make_mat4(rotation_list);
 
 	float scaletion_list[16] = { scale, 0, 0, 0,
 											0, scale, 0, 0,
 											0, 0, scale, 0,
 											0, 0, 0, 1 };
 
-	scaletion = transpose(glm::make_mat4(scaletion_list));
+	scaletion = glm::make_mat4(scaletion_list);
 
 	float translate_list[16] = { 1, 0, 0, trans.x,
 											0, 1, 0, trans.y,
 											0, 0, 1, trans.z,
 											0, 0, 0, 1 };
 
-	translate = transpose(glm::make_mat4(translate_list));
-	return translate * scaletion * rotation;
+	translate = glm::make_mat4(translate_list);
+
+	return rotation * scaletion * translate;
 }
 
 void Rasterizer::update_view()
@@ -52,7 +53,7 @@ void Rasterizer::update_view()
 									0,0,1,-pViewPoint->z,
 									0,0,0,1 };
 
-	this->ViewMat = transpose(glm::make_mat4(view_list));
+	this->ViewMat = glm::make_mat4(view_list);
 }
 
 void Rasterizer::update_projection(float zNear, float zFar, float eye_fov)
@@ -81,10 +82,10 @@ void Rasterizer::update_projection(float zNear, float zFar, float eye_fov)
 									0,0,1,-(zNear+zFar)/2,
 									0,0,0,1 };
 
-	m = transpose(glm::make_mat4(m_list));
-	n = transpose(glm::make_mat4(n_list));
-	p = transpose(glm::make_mat4(p_list));
-	this->ProjectionMat = n * p * m;
+	m = glm::make_mat4(m_list);
+	n = glm::make_mat4(n_list);
+	p = glm::make_mat4(p_list);
+	this->ProjectionMat = m * p * n;
 }
 
 void Rasterizer::SetUpEnvironment(EnvData* data)
@@ -101,7 +102,7 @@ void Rasterizer::Add_Object(ModelData data)
 	IShader* shader = data.shader;
 	shader->set_model_data(data.model);
 	shader->World_mat = calculate_model(data.yangle, data.scale, data.translate);
-	shader->ViewProj_mat = ProjectionMat * ViewMat;
+	shader->ViewProj_mat = ViewMat * ProjectionMat;
 	shader->pLightPos = pLightPos;
 	shader->pLightColor = pLightColor;
 	shader->pViewPos = pViewPoint;
