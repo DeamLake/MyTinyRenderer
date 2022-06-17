@@ -35,8 +35,8 @@ public:
 
 		// tbn ×ª»»
 		mat3x3 AI = inverse(mat3x3{ VertPosition[1] - VertPosition[0], VertPosition[2] - VertPosition[0], normal });
-		vec3 i = vec3(VertUV[1][0] - VertUV[0][0], VertUV[1][1] - VertUV[0][1], 0) * AI;
-		vec3 j = vec3(VertUV[2][0] - VertUV[0][0], VertUV[2][1] - VertUV[0][1], 0) * AI;
+		vec3 i = vec3(VertUV[1][0] - VertUV[0][0], VertUV[2][0] - VertUV[0][0], 0) * AI;
+		vec3 j = vec3(VertUV[1][1] - VertUV[0][1], VertUV[2][1] - VertUV[0][1], 0) * AI;
 		mat3x3 TBN = transpose(mat3x3{ normalize(i), normalize(j), normal });
 		normal = normalize(model->normal(uv) * TBN);
 
