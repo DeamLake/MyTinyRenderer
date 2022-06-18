@@ -20,11 +20,9 @@ public:
 		return position * ViewProj_mat;
 	}
 
-	vec3 fragment(const vec3& bary, vec3 zs) final {
-		float alpha = bary.x, beta = bary.y, gamma = bary.z;
-		float zp = 1.0f / (alpha / zs[0] + beta / zs[1] + gamma / zs[2]);
-		vec3 position = (alpha * VertPosition[0] / zs[0] + beta * VertPosition[1] / zs[1] + gamma * VertPosition[2] / zs[2]) * zp;
-		vec2 uv = (alpha * VertUV[0] / zs[0] + beta * VertUV[1] / zs[1] + gamma * VertUV[2] / zs[2]) * zp;
+	bool fragment(const vec3& bary, vec3& color) final {
+		vec3 position = VertPosition * bary;
+		vec2 uv = VertUV * bary;
 		vec3 normal = model->normal(uv);
 
 		// ambient
@@ -44,6 +42,9 @@ public:
 		float spec = pow(max(dot(normal, midDir), 0.0f), 32);
 		vec3 specular = specularStrength * spec * pLightColor;
 
-		return ambient + diffuse + specular;
+		color = ambient + diffuse + specular;
+
+		// ²âÊÔ²»Í¨¹ý
+		return false;
 	}
 };

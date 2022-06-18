@@ -218,12 +218,15 @@ void Rasterizer::draw_triangle(std::vector<glm::vec4>& v, IShader* shader)
 		for (int y = y_min; y <= y_max; y++) {
 			glm::vec3 bcCoord = baryCentric(v, x, y);
 			if (inside_triangle(bcCoord)) {
-				float alpha = bcCoord.x, beta = bcCoord.y, gamma = bcCoord.z;
-				float zp = 1.0f / (alpha / v[0].w + beta / v[1].w + gamma / v[2].w);
+				// ±ãÀûÐÔ¼ÆËã
+				bcCoord.x /= v[0].w; bcCoord.y /= v[1].w; bcCoord.z /= v[2].w;
+				float zp = 1.0f / (bcCoord[0] + bcCoord[1] + bcCoord[2]);
+				bcCoord *= zp;
 
 				if (zp > gDepthBuffer.Sample(x, y)) {
 					SetDepth(x, y, zp);
-					glm::vec3 color = shader->fragment(bcCoord, glm::vec3(v[0].w,v[1].w,v[2].w));
+					glm::vec3 color;
+					shader->fragment(bcCoord, color);
 					DrawPixel(x, y, color);
 				}
 			}

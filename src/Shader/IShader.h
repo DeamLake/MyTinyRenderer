@@ -16,14 +16,14 @@ public:
 	void set_model_data(Model* model_data) { model = model_data; }	
 	vec3 calculateT(int idx0, int idx1, int idx2);
 	virtual vec4 vertex(int iface, int nthvert) = 0;
-	virtual vec3 fragment(const vec3& bary, vec3 zs) = 0;
+	virtual bool fragment(const vec3& bary, vec3& color) = 0;
 public:
 	Model* model = nullptr;
 	mat4x4 World_mat, ViewProj_mat;
 	vec3 pLightPos, pLightColor, pViewPos;
 
 protected:
-	std::vector<vec3> VertPosition, VertNormal;
-	std::vector<vec2> VertUV;
+	mat3x3 VertPosition, VertNormal;
+	mat3x2 VertUV;
 	
 };
