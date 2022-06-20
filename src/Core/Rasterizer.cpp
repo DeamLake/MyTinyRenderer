@@ -12,7 +12,7 @@ void Rasterizer::ClearDepth()
 	{
 		for (int j = 0; j < width; j++)
 		{
-			gDepthBuffer.depthBuffer[i][j] = -151551515;
+			gDepthBuffer.depthBuffer[i][j] = -256;
 		}
 	}
 }
@@ -148,12 +148,14 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 				continue;
 		}
 
+		
+
 		for (int j = 0; j < 3; j++) 
 		{
-			// 屏幕坐标
+			// 视口转换
 			coords[j].x = (coords[j].x + 1.0f)* (width - 1) / 2;
 			coords[j].y = (coords[j].y + 1.0f) * (height - 1) / 2;
-			coords[j].z = coords[j].z;
+			coords[j].z = (coords[j].z + 1.0f) * 255.0f/2 ;
 		}
 
 		draw_triangle(coords, shader);

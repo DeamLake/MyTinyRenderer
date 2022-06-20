@@ -19,7 +19,7 @@ struct DepthBuffer :Buffer
 		{
 			for (int j = 0; j < width; j++)
 			{
-				depthBuffer[i][j] = 1;// 0x7fffffff;
+				depthBuffer[i][j] = -256;// 0x7fffffff;
 			}
 		}
 	}
