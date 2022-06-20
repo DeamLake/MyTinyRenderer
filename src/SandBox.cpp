@@ -75,7 +75,6 @@ bool SandBoxApp::InitializeRasterizer()
 	modelData.translate = glm::vec3(-1.5f, 0, 0);
 	modelData.scales = glm::vec3(1, 1, 1);
 	modelData.yangle = 0.0f;
-	
 	r.Add_Object(modelData);
 
 	modelData.model = new Model("../Resources/african_head/african_head_eye_inner.obj");

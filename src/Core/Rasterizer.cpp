@@ -45,7 +45,7 @@ glm::mat4 Rasterizer::calculate_model(float angle, const glm::vec3& scales, cons
 	return rotation * scaletion * translate;
 }
 
-void Rasterizer::update_lookat()
+void Rasterizer::update_lookat(glm::vec3& view_point, glm::vec3& center, glm::vec3& up)
 {
 	glm::vec3 z = normalize(pViewPoint - pCenter);
 	glm::vec3 x = normalize(cross(pUp, z));
@@ -99,8 +99,9 @@ void Rasterizer::SetUpEnvironment(EnvData* data)
 	this->pLightColor =data->LightColor;
 	this->pCenter = data->center;
 	this->pUp = data->up;
-	update_lookat();
-	update_projection(data->zNear, data->zFar, data->eye_fov);
+	this->zNear = data->zNear;
+	this->zFar = data->zFar;
+	this->eye_fov = data->eye_fov;
 }
 
 void Rasterizer::Add_Object(ModelData data)
@@ -108,7 +109,6 @@ void Rasterizer::Add_Object(ModelData data)
 	IShader* shader = data.shader;
 	shader->set_model_data(data.model);
 	shader->World_mat = calculate_model(data.yangle, data.scales, data.translate);
-	shader->ViewProj_mat = ModelViewMat * ProjectionMat;
 	shader->pLightPos = pLightPos;
 	shader->pLightColor = pLightColor;
 	shader->pViewPos = pViewPoint;
@@ -118,6 +118,10 @@ void Rasterizer::Add_Object(ModelData data)
 
 void Rasterizer::draw_model(Model* model_data, IShader* shader) 
 {
+	update_lookat(this->pViewPoint, this->pCenter, this->pUp);
+	update_projection(this->zNear, this->zFar, this->eye_fov);
+	shader->ViewProj_mat = ModelViewMat * ProjectionMat;
+
 	for (int i = 0; i < model_data->nfaces(); i++) {
 		int ClipStateCode = 63;
 		std::vector<glm::vec4> coords(3);
@@ -147,8 +151,6 @@ void Rasterizer::draw_model(Model* model_data, IShader* shader)
 			if (AB[0] * AC[1] - AC[0] * AB[1] < 0)
 				continue;
 		}
-
-		
 
 		for (int j = 0; j < 3; j++) 
 		{

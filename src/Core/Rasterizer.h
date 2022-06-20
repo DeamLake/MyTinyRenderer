@@ -23,7 +23,7 @@ public:
 	void SetHDC(HDC hdc) { gScreenHdc = hdc; }
 	
 	glm::mat4 calculate_model(float angle, const glm::vec3& scales, const glm::vec3& trans);
-	void update_lookat();
+	void update_lookat(glm::vec3& view_point, glm::vec3& center, glm::vec3& up);
 	void update_projection(float zNear, float zFar, float eye_fov);
 
 	void SetUpEnvironment(EnvData* data);
@@ -50,6 +50,7 @@ private:
 	HDC gScreenHdc;
 	DepthBuffer gDepthBuffer;
 	
+	float zNear, zFar, eye_fov;
 	glm::mat4 ProjectionMat, ModelViewMat;
 	glm::vec3 pViewPoint, pCenter, pUp, pLightPos, pLightColor;
 	std::shared_ptr <std::vector<ModelData>> gObjects = std::make_shared<std::vector<ModelData>>();
