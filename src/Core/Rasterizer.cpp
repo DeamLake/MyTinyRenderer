@@ -47,15 +47,15 @@ glm::mat4 Rasterizer::calculate_model(float angle, const glm::vec3& scales, cons
 
 void Rasterizer::update_lookat(glm::vec3& view_point, glm::vec3& center, glm::vec3& up)
 {
-	glm::vec3 z = normalize(pViewPoint - pCenter);
-	glm::vec3 x = normalize(cross(pUp, z));
+	glm::vec3 z = normalize(view_point - center);
+	glm::vec3 x = normalize(cross(up, z));
 	glm::vec3 y = normalize(cross(z, x));
 	glm::mat4x4 Minv(1), Translate(1);
 	for (int i : {0, 1, 2}) {
 		Minv[0][i] = x[i];
 		Minv[1][i] = y[i];
 		Minv[2][i] = z[i];
-		Translate[i][3] = -pViewPoint[i];
+		Translate[i][3] = -view_point[i];
 	}
 	ModelViewMat = Translate * Minv;
 }
@@ -94,11 +94,9 @@ void Rasterizer::update_projection(float zNear, float zFar, float eye_fov)
 
 void Rasterizer::SetUpEnvironment(EnvData* data)
 {
-	this->pViewPoint = data->view_point;
+	this->camera = data->camera;
 	this->pLightPos = data->LightPos;
 	this->pLightColor =data->LightColor;
-	this->pCenter = data->center;
-	this->pUp = data->up;
 	this->zNear = data->zNear;
 	this->zFar = data->zFar;
 	this->eye_fov = data->eye_fov;
@@ -111,16 +109,16 @@ void Rasterizer::Add_Object(ModelData data)
 	shader->World_mat = calculate_model(data.yangle, data.scales, data.translate);
 	shader->pLightPos = pLightPos;
 	shader->pLightColor = pLightColor;
-	shader->pViewPos = pViewPoint;
 	gObjects->push_back(data);
 	gObjectSize++;
 }
 
-void Rasterizer::draw_model(Model* model_data, IShader* shader) 
+void Rasterizer::draw_model(Model* model_data, IShader* shader, Camera* camera)
 {
-	update_lookat(this->pViewPoint, this->pCenter, this->pUp);
+	update_lookat(camera->eye, camera->target, camera->up);
 	update_projection(this->zNear, this->zFar, this->eye_fov);
 	shader->ViewProj_mat = ModelViewMat * ProjectionMat;
+	shader->pViewPos = camera->eye;
 
 	for (int i = 0; i < model_data->nfaces(); i++) {
 		int ClipStateCode = 63;
@@ -197,26 +195,6 @@ void Rasterizer::draw_triangle(std::vector<glm::vec4>& v, IShader* shader)
 	float x_max = min(width - 0.01f, max(v[0].x,max(v[1].x,v[2].x)));
 	float y_min = max(0.01f, min(v[0].y,min(v[1].y,v[2].y)));
 	float y_max = min(height - 0.01f, max(v[0].y, max(v[1].y,v[2].y)));
-
-	/*tbb::parallel_for(tbb::blocked_range<size_t>(x_min, x_max),
-		[&](tbb::blocked_range<size_t> r) {
-			for (size_t x = r.begin(); x < r.end(); ++x)
-			{
-				for (int y = y_min; y <= y_max; y++) {
-					glm::vec3 bcCoord = baryCentric(v, x, y);
-					if (inside_triangle(bcCoord)) {
-						float alpha = bcCoord.x, beta = bcCoord.y, gamma = bcCoord.z;
-						float zp = 1.0f / (alpha / v[0].w + beta / v[1].w + gamma / v[2].w);
-
-						if (zp > gDepthBuffer.Sample(x, y)) {
-							SetDepth(x, y, zp);
-							glm::vec3 color = shader->fragment(bcCoord, glm::vec3(v[0].w, v[1].w, v[2].w));
-							DrawPixel(x, y, color);
-						}
-					}
-				}
-			}
-		});*/
 
 	for (int x = x_min; x <= x_max; x++) {
 		for (int y = y_min; y <= y_max; y++) {

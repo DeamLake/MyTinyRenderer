@@ -28,7 +28,7 @@ public:
 
 	void SetUpEnvironment(EnvData* data);
 	void Add_Object(ModelData data);
-	void draw_model(Model* model_data, IShader* shader);
+	void draw_model(Model* model_data, IShader* shader, Camera* camera);
 	void rotate_object(float angle, ModelData& data);
 
 	ModelData getNthObject(int idx) const { return (*gObjects)[idx]; }
@@ -42,17 +42,16 @@ private:
 	void DrawPixel(int x, int y, glm::vec3& color);
 	void SetDepth(int x, int y, float depth);
 
-
-
 private:
 	// 内部变量
 	int width, height;
 	HDC gScreenHdc;
 	DepthBuffer gDepthBuffer;
 	
+	Camera* camera;
 	float zNear, zFar, eye_fov;
 	glm::mat4 ProjectionMat, ModelViewMat;
-	glm::vec3 pViewPoint, pCenter, pUp, pLightPos, pLightColor;
+	glm::vec3 pLightPos, pLightColor;
 	std::shared_ptr <std::vector<ModelData>> gObjects = std::make_shared<std::vector<ModelData>>();
 	int gObjectSize = 0;
 };

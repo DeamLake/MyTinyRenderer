@@ -3,10 +3,12 @@
 #include<glm/vec3.hpp>
 #include "IShader.h"
 #include "model.h"
+#include "Camera.h"
 
 struct EnvData
 {
-	glm::vec3 view_point, center, up, LightPos, LightColor;
+	Camera* camera;
+	glm::vec3 LightPos, LightColor;
 	float zNear, zFar;
 	int eye_fov;
 };

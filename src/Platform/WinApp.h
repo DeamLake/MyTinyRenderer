@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <assert.h>
 #include "glm/vec2.hpp"
+#include "micros.h"
 #pragma comment( lib,"winmm.lib" )
 
 typedef struct mouse
@@ -52,3 +53,5 @@ protected:
 	int gClientWidth, gClientHeight;
 	const char* gWindowName;
 };
+
+glm::vec2 get_mouse_pos();
