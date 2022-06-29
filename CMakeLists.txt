@@ -38,7 +38,7 @@ add_subdirectory(src/Utils)
 add_subdirectory(src/Shader)
 
 # Target
-add_executable(Sandbox "src/SandBox.cpp")
-set_target_properties(Sandbox PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /SAFESEH:NO")
+add_executable(Sandbox "src/main.cpp")
+# set_target_properties(Sandbox PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /SAFESEH:NO")
 target_link_libraries(Sandbox platform core utils shader "../../../lib/tbb1/tbb12_debug" "../../../lib/tbb2/tbb12")
 

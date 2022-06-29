@@ -1,43 +1,54 @@
 #pragma once
 #include <Windows.h>
 #include <assert.h>
-
+#include "glm/vec2.hpp"
 #pragma comment( lib,"winmm.lib" )
+
+typedef struct mouse
+{
+	// for camera orbit
+	glm::vec2 orbit_pos;
+	glm::vec2 orbit_delta;
+	// for first-person view (diabled now)
+	glm::vec2 fv_pos;
+	glm::vec2 fv_delta;
+	// for mouse wheel
+	float wheel_delta;
+}mouse_t;
 
 class WinApp
 {
-protected:
-	// winapp不能被构造
-	WinApp(HINSTANCE hi, int w, int h, const char* wn);
-	virtual ~WinApp() {}
+public:
+	WinApp(int w, int h, const char* wn);
+	~WinApp();
 	WinApp(const WinApp& rhs) = delete;
 	WinApp&  operator=(const WinApp& rhs) = delete;
 
 public:
-	static WinApp* GetApp() { return gApp; }
-	HINSTANCE AppInst()const { return ghAppInst; }
-	HWND      MainWnd()const { return ghMainWnd; }
-	float     AspectRatio()const { return static_cast<float>(gClientWidth) / gClientHeight; }
+	bool isClose = false;
+	char keys[512];
+	char buttons[2];
 
-	virtual int Run();
-	virtual bool Initialize();
-	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	static WinApp* GetApp() { return gApp; }
+	mouse_t* GetMouse() { return gMouse; }
+	int GetWidth() { return gClientWidth; }
+	int GetHeight() { return gClientHeight; }
+	HWND MainWnd()const { return ghMainWnd; }
+	HDC GetHDC() { return gScreenHdc; }
+
+	void msg_dispatch();
+	void Show();
 
 protected:
 	// 内部函数
-	bool InitMainWindow();
-	void Show();
-	void ShowFPS();
+	void Initialize();
 
 protected:
 	// 内部变量
 	static WinApp* gApp;// app类实例
-
-	HINSTANCE				ghAppInst			= nullptr;		// 应用程序handle
-	HWND						ghMainWnd		= nullptr;		// 窗口handle
-	HDC							gHdc					= nullptr;     // 主屏幕设备
-	HDC							gScreenHdc			= nullptr;     // 副屏幕设备 着色完之后复制到主设备 完成渲染
-
+	mouse_t* gMouse;
+	HWND		ghMainWnd  = nullptr;		// 窗口handle
+	HDC			gScreenHdc	  = nullptr;     // 副屏幕设备 着色完之后复制到主设备 完成渲染
 	int gClientWidth, gClientHeight;
 	const char* gWindowName;
 };
