@@ -3,6 +3,13 @@
 #include "model.h"
 #include "Shaders.h"
 #include "Camera.h"
+#include "Scene.h"
+
+const scene_t Scenes[]
+{
+	{"african_head",African_Head_Scene},
+	{"diablo",Diablo_Scene}
+};
 
 const vec3 Eye(0, 2, 4);
 const vec3 Up(0, 1, 0);
@@ -26,30 +33,7 @@ void main()
 	envData->eye_fov = 45;
 	r.SetUpEnvironment(envData);
 
-	// shader ²âÊÔ³¡¾°
-	ModelData modelData;
-	modelData.model = new Model("../Resources/african_head/african_head.obj");
-	modelData.shader = new GouraudShader();
-	modelData.translate = glm::vec3(-1.5f, 0, 0);
-	modelData.scales = glm::vec3(1, 1, 1);
-	modelData.yangle = 0.0f;
-	r.Add_Object(modelData);
-
-	modelData.model = new Model("../Resources/african_head/african_head_eye_inner.obj");
-	modelData.shader = new GouraudShader();
-	r.Add_Object(modelData);
-
-	modelData.model = new Model("../Resources/diablo/diablo3_pose.obj");
-	modelData.shader = new DepthShader();
-	modelData.translate = glm::vec3(1.5f, 0, 0);
-	r.Add_Object(modelData);
-
-	/*modelData.model = new Model("../Resources/floor.obj");
-	modelData.shader = new GouraudShader();
-	modelData.translate = glm::vec3(0, 0.18f, -1.2f);
-	modelData.scales = glm::vec3(4, 1, 2);
-	modelData.rotate = false;
-	r.Add_Object(modelData);*/
+	Scenes[1].build_scene(r);
 
 	float angle = 0;
 	while (!WinApp::GetApp()->isClose)
