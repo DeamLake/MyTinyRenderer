@@ -8,7 +8,10 @@
 const scene_t Scenes[]
 {
 	{"african_head",African_Head_Scene},
-	{"diablo",Diablo_Scene}
+	{"diablo",Diablo_Scene},
+	{"fuhua",Fuhua_Scene},
+	{"helmet",Helmat_Scene},
+	{"floor",Floor_Scene}
 };
 
 const vec3 Eye(0, 2, 4);
@@ -33,7 +36,7 @@ void main()
 	envData->eye_fov = 45;
 	r.SetUpEnvironment(envData);
 
-	Scenes[1].build_scene(r);
+	Scenes[4].build_scene(r);
 
 	float angle = 0;
 	while (!WinApp::GetApp()->isClose)
