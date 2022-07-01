@@ -9,7 +9,6 @@ typedef struct
 } scene_t;
 
 void African_Head_Scene(Rasterizer& r);
-void Diablo_Scene(Rasterizer& r);
 void Helmat_Scene(Rasterizer& r);
+void Gun_Scene(Rasterizer& r);
 void Fuhua_Scene(Rasterizer& r);
-void Floor_Scene(Rasterizer& r);

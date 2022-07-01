@@ -244,7 +244,7 @@ vec3 Model::diffuse(vec2 uv)
 	TGAColor c = diffusemap->get(uv0, uv1);
 	vec3 res;
 	for (int i = 0; i < 3; i++)
-		res[2 - i] = (float)c[i];
+		res[2 - i] = (float)c[i]/ 255.0f;
 	return res;
 }
 

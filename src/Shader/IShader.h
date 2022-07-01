@@ -41,3 +41,5 @@ public:
 };
 
 vec3 cubemap_sampling(vec3 direction, cubemap_t* cubemap);
+vec3 texture_sample(vec2 uv, TGAImage* image);
+vec3 tbn_normal(payload_t* payload, const vec3& bary, vec2& uv);

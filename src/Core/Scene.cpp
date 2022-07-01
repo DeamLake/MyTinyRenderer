@@ -48,7 +48,7 @@ void load_ibl_map(Rasterizer& r, const char* env_path)
 	}
 
 	/* brdf lookup texture */
-	iblmap->brdf_lut = texture_from_file("../obj/common/BRDF_LUT.tga");
+	iblmap->brdf_lut = texture_from_file("../Resources/common/BRDF_LUT.tga");
 
 	r.SetMap(iblmap);
 }
@@ -69,35 +69,37 @@ void African_Head_Scene(Rasterizer& r)
 
 	modelData.model = new Model("../Resources/skybox4/box.obj", 1);
 	modelData.shader = new SkyBoxShader();
+	modelData.translate = glm::vec3(0, 0, 0);
 	modelData.scales = glm::vec3(2, 2, 2);
 	modelData.rotate = false;
-	r.Add_Object(modelData);
-	
-	/*ModelData modelData;
-	modelData.model = new Model("../Resources/skybox4/box.obj", 1);
-	modelData.shader = new SkyBoxShader();
-	modelData.translate = glm::vec3(0, 0, 0);
-	modelData.scales = glm::vec3(2, 2, 2);
-	modelData.yangle = 0.0f;
-	r.Add_Object(modelData);*/
-}
-
-void Diablo_Scene(Rasterizer& r)
-{
-	ModelData modelData;
-	modelData.model = new Model("../Resources/diablo/diablo3_pose.obj");
-	modelData.shader = new GouraudShader();
-	modelData.translate = glm::vec3(0, 0, 0);
-	modelData.scales = glm::vec3(1, 1, 1);
-	modelData.yangle = 0.0f;
 	r.Add_Object(modelData);
 }
 
 void Helmat_Scene(Rasterizer& r)
 {
+	load_ibl_map(r, "../Resources/common2");
 	ModelData modelData;
 	modelData.model = new Model("../Resources/helmet/helmet.obj");
-	modelData.shader = new GouraudShader();
+	modelData.shader = new PBRShader();
+	modelData.translate = glm::vec3(0, 0, -1);
+	modelData.scales = glm::vec3(1.0f, 1.0f, 1.0f);
+	modelData.yangle = 0.0f;
+	r.Add_Object(modelData);
+
+	modelData.model = new Model("../Resources/skybox4/box.obj", 1);
+	modelData.shader = new SkyBoxShader();
+	modelData.translate = glm::vec3(0, 0, 0);
+	modelData.scales = glm::vec3(2, 2, 2);
+	modelData.rotate = false;
+	r.Add_Object(modelData);
+}
+
+void Gun_Scene(Rasterizer& r)
+{
+	load_ibl_map(r, "../Resources/common2");
+	ModelData modelData;
+	modelData.model = new Model("../Resources/Gun/Cerberus.obj");
+	modelData.shader = new PBRShader();
 	modelData.translate = glm::vec3(0, 0, -1);
 	modelData.scales = glm::vec3(1.0f, 1.0f, 1.0f);
 	modelData.yangle = 0.0f;
@@ -132,15 +134,11 @@ void Fuhua_Scene(Rasterizer& r)
 	modelData.model = new Model("../Resources/fuhua/fuhuahair.obj");
 	modelData.shader = new GouraudShader();
 	r.Add_Object(modelData);
-}
 
-void Floor_Scene(Rasterizer& r)
-{
-	ModelData modelData;
-	modelData.model = new Model("../Resources/floor.obj");
-	modelData.shader = new BlingPhongShader();
-	modelData.translate = glm::vec3(0, 0, -1);
-	modelData.scales = glm::vec3(2.0f, 2.0f, 2.0f);
-	modelData.yangle = 0.0f;
+	modelData.model = new Model("../Resources/skybox4/box.obj", 1);
+	modelData.shader = new SkyBoxShader();
+	modelData.translate = glm::vec3(0, 0, 0);
+	modelData.scales = glm::vec3(2, 2, 2);
+	modelData.rotate = false;
 	r.Add_Object(modelData);
 }

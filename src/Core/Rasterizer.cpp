@@ -214,7 +214,7 @@ void Rasterizer::draw_triangle(payload_t* payload, IShader* shader)
 
 				if (zp > gDepthBuffer.Sample(x, y)) {
 					SetDepth(x, y, zp);
-					glm::vec3 color;
+					glm::vec3 color(0.0f);
 					shader->fragment(bcCoord, color);
 					DrawPixel(x, y, color);
 				}
@@ -227,8 +227,9 @@ void Rasterizer::DrawPixel(int x, int y, glm::vec3& color)
 {
 	int index = ((height - y - 1) * width + x) * 4;
 	for (int i = 0; i < 3; i++)
-		framebuffer[index + i] = min(255.0f,color[i]);
+		framebuffer[index + i] = min(255.0f,color[i]*255.0f);
 }
+
 void Rasterizer::SetDepth(int x, int y, float depth)
 {
 	//y = height - y-1;

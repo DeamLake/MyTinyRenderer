@@ -71,7 +71,7 @@ vec3 texture_sample(vec2 uv, TGAImage* image)
 	TGAColor c = image->get(uv0, uv1);
 	vec3 res{1};
 	for (int i = 0; i < 3; i++)
-		res[2 - i] = (float)c[i];
+		res[2 - i] = (float)c[i]/255.0f;
 	return res;
 }
 
@@ -82,4 +82,15 @@ vec3 cubemap_sampling(vec3 direction, cubemap_t* cubemap)
 	vec3 color = texture_sample(uv, cubemap->faces[face_index]);
 
 	return color;
+}
+
+vec3 tbn_normal(payload_t* payload, const vec3& bary, vec2& uv)
+{
+	vec3 normal = normalize(payload->VertNormal * bary);
+	// tbn ×ª»» normal mapping
+	mat3x3 AI = inverse(mat3x3{ payload->VertPosition[1] - payload->VertPosition[0], payload->VertPosition[2] - payload->VertPosition[0], normal });
+	vec3 i = vec3(payload->VertUV[1][0] - payload->VertUV[0][0], payload->VertUV[2][0] - payload->VertUV[0][0], 0) * AI;
+	vec3 j = vec3(payload->VertUV[1][1] - payload->VertUV[0][1], payload->VertUV[2][1] - payload->VertUV[0][1], 0) * AI;
+	mat3x3 TBN = transpose(mat3x3{ normalize(i), normalize(j), normal });
+	return normalize(payload->model->normal(uv) * TBN);
 }

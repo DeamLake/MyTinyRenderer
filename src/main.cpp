@@ -8,10 +8,9 @@
 const scene_t Scenes[]
 {
 	{"african_head",African_Head_Scene},
-	{"diablo",Diablo_Scene},
 	{"fuhua",Fuhua_Scene},
 	{"helmet",Helmat_Scene},
-	{"floor",Floor_Scene}
+	{"gun",Gun_Scene}
 };
 
 const vec3 Eye(0, 2, 4);
