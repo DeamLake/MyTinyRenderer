@@ -3,3 +3,4 @@
 #include "BlingPhongShader.h"
 #include "GouraudShader.h"
 #include "SkyBoxShader.h"
+#include "PBRShader.h"

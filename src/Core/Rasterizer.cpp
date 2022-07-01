@@ -1,12 +1,6 @@
 #include "Rasterizer.h"
 #include "Triangle_Clip.h"
 
-Rasterizer::Rasterizer(int w, int h) 
-	:width(w), height(h), gScreenHdc(NULL), gDepthBuffer(w, h)
-{
-
-}
-
 void Rasterizer::ClearDepth() 
 {
 	for (int i = 0; i < height; i++)

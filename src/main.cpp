@@ -36,9 +36,9 @@ int main()
 	envData->eye_fov = 45;
 	r.SetUpEnvironment(envData);
 
-	Scenes[0].build_scene(r);
+	Scenes[3].build_scene(r);
 
-	float angle = 0;
+	float angle = 120.0f;
 	while (!WinApp::GetApp()->isClose)
 	{
 		// Clear

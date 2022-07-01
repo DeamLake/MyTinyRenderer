@@ -15,7 +15,7 @@
 class Rasterizer
 {
 public:
-	Rasterizer(int w, int h);
+	Rasterizer(int w, int h) : width(w), height(h), gScreenHdc(NULL), gDepthBuffer(w, h){}
 	~Rasterizer() {}
 
 public:
