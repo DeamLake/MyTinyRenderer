@@ -5,6 +5,8 @@
 #include "model.h"
 #include "Camera.h"
 
+
+
 struct EnvData
 {
 	Camera* camera;

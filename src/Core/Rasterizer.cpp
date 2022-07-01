@@ -107,8 +107,8 @@ void Rasterizer::Add_Object(ModelData data)
 	IShader* shader = data.shader;
 	shader->set_model_data(data.model);
 	shader->World_mat = calculate_model(data.yangle, data.scales, data.translate);
-	shader->pLightPos = pLightPos;
-	shader->pLightColor = pLightColor;
+	shader->pLightPos = this->pLightPos;
+	shader->pLightColor = this->pLightColor;
 	gObjects->push_back(data);
 	gObjectSize++;
 }

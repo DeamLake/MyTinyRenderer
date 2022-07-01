@@ -30,13 +30,13 @@ void main()
 	EnvData* envData = new EnvData();
 	envData->camera = camera;
 	envData->LightColor = glm::vec3(255, 255, 255);
-	envData->LightPos = glm::vec3(1, 1, 3);
+	envData->LightPos = glm::vec3(1, 1, 1);
 	envData->zNear = -0.1f;
 	envData->zFar = -10.0f;
 	envData->eye_fov = 45;
 	r.SetUpEnvironment(envData);
 
-	Scenes[4].build_scene(r);
+	Scenes[0].build_scene(r);
 
 	float angle = 0;
 	while (!WinApp::GetApp()->isClose)
@@ -46,7 +46,7 @@ void main()
 		r.ClearDepth();
 
 		// camera
-		camera->handle_events();
+		//camera->handle_events();
 
 		angle += 1.0f;
 

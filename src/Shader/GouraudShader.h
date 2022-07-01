@@ -38,12 +38,10 @@ public:
 		normal = normalize(model->normal(uv) * TBN);
 
 		vec3 midDir = normalize(lightDir + viewDir);
-		float spec = pow(max(0.0f, dot(midDir, normal)), model->specular(uv) );
+		float spec = pow(max(0.0f, dot(midDir, normal)), 200 );
 		float intense = max(0.0f, dot(normal, lightDir));
 
-		TGAColor tcolor = model->diffuse(uv);
-
-		color = (intense+0.6f * spec) * vec3(tcolor.r, tcolor.g, tcolor.b);
+		color = (intense+0.6f * spec) * model->diffuse(uv);
 
 		//²âÊÔ²»Í¨¹ı
 		return false;
