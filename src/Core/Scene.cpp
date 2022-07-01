@@ -105,11 +105,11 @@ void Helmat_Scene(Rasterizer& r)
 
 	modelData.model = new Model("../Resources/skybox4/box.obj", 1);
 	modelData.shader = new SkyBoxShader();
+	modelData.translate = glm::vec3(0, 0, 0);
 	modelData.scales = glm::vec3(2, 2, 2);
 	modelData.rotate = false;
 	r.Add_Object(modelData);
 }
-
 
 void Fuhua_Scene(Rasterizer& r)
 {

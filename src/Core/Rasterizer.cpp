@@ -1,13 +1,17 @@
 #include "Rasterizer.h"
 #include "Triangle_Clip.h"
 
-void Rasterizer::ClearDepth() 
+void Rasterizer::ClearAll()
 {
 	for (int i = 0; i < height; i++)
 	{
 		for (int j = 0; j < width; j++)
 		{
 			gDepthBuffer.depthBuffer[i][j] = -256;
+			int index = (i * width + j) * 4;
+			framebuffer[index + 2] = 80;
+			framebuffer[index + 1] = 56;
+			framebuffer[index] = 56;
 		}
 	}
 }
@@ -217,13 +221,13 @@ void Rasterizer::draw_triangle(payload_t* payload, IShader* shader)
 			}
 		}
 	}
-
 }
 
 void Rasterizer::DrawPixel(int x, int y, glm::vec3& color)
 {
-	y = height - y-1;
-	SetPixel(gScreenHdc, x, y, RGB(min(255.0f,color.r), min(255.0f,color.g), min(255.0f, color.b)));
+	int index = ((height - y - 1) * width + x) * 4;
+	for (int i = 0; i < 3; i++)
+		framebuffer[index + i] = min(255.0f,color[i]);
 }
 void Rasterizer::SetDepth(int x, int y, float depth)
 {

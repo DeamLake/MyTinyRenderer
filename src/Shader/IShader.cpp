@@ -69,7 +69,7 @@ vec3 texture_sample(vec2 uv, TGAImage* image)
 	int uv0 = uv[0] * image->get_width();
 	int uv1 = uv[1] * image->get_height();
 	TGAColor c = image->get(uv0, uv1);
-	vec3 res;
+	vec3 res{1};
 	for (int i = 0; i < 3; i++)
 		res[2 - i] = (float)c[i];
 	return res;
@@ -78,9 +78,8 @@ vec3 texture_sample(vec2 uv, TGAImage* image)
 vec3 cubemap_sampling(vec3 direction, cubemap_t* cubemap)
 {
 	vec2 uv;
-	vec3 color;
 	int face_index = cal_cubemap_uv(direction, uv);
-	color = texture_sample(uv, cubemap->faces[face_index]);
+	vec3 color = texture_sample(uv, cubemap->faces[face_index]);
 
 	return color;
 }

@@ -25,11 +25,6 @@ public:
 
 	bool fragment(const vec3& bary, vec3& color) final 
 	{
-		if (this->payload->iblMap == nullptr) {
-			color = vec3(255.0f);
-			return false;
-		}
-
 		vec3 position = payload->VertPosition * bary;
 		color = cubemap_sampling(position, payload->model->environment_map);
 

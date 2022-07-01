@@ -38,7 +38,7 @@ public:
 	HDC GetHDC() { return gScreenHdc; }
 
 	void msg_dispatch();
-	void Show();
+	void Show(unsigned char* framebuffer);
 
 protected:
 	// 内部函数
@@ -48,6 +48,7 @@ protected:
 	// 内部变量
 	static WinApp* gApp;// app类实例
 	mouse_t* gMouse;
+	unsigned char* window_fb;
 	HWND		ghMainWnd  = nullptr;		// 窗口handle
 	HDC			gScreenHdc	  = nullptr;     // 副屏幕设备 着色完之后复制到主设备 完成渲染
 	int gClientWidth, gClientHeight;

@@ -15,13 +15,17 @@
 class Rasterizer
 {
 public:
-	Rasterizer(int w, int h) : width(w), height(h), gScreenHdc(NULL), gDepthBuffer(w, h){}
+	Rasterizer(int w, int h) : width(w), height(h), gScreenHdc(NULL), gDepthBuffer(w, h)
+	{
+		framebuffer = (unsigned char*)malloc(sizeof(unsigned char) * width * height * 4);
+	}
 	~Rasterizer() {}
 
 public:
-	void ClearDepth();
+	void ClearAll();
 	void SetHDC(HDC hdc) { gScreenHdc = hdc; }
 	void SetMap(iblmap_t* map) { iblMap = map; }
+	unsigned char* GetBuffer() { return framebuffer; }
 	
 	glm::mat4 calculate_model(float angle, const glm::vec3& scales, const glm::vec3& trans);
 	void update_lookat(glm::vec3& view_point, glm::vec3& center, glm::vec3& up, bool isSkyBox);
@@ -51,6 +55,7 @@ private:
 	
 	Camera* camera;
 	iblmap_t* iblMap;
+	unsigned char* framebuffer;
 	float zNear, zFar, eye_fov;
 	glm::mat4 ProjectionMat, ModelViewMat;
 	glm::vec3 pLightPos, pLightColor;

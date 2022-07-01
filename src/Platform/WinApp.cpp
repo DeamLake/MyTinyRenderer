@@ -89,20 +89,18 @@ void WinApp::Initialize()
 		return;
 	}
 
-	// 设置窗口大小
-	RECT R = { 0, 0, gClientWidth, gClientHeight };
-	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
-	int width = R.right - R.left;
-	int height = R.bottom - R.top;
-
 	// 创建窗口
 	ghMainWnd = CreateWindow(wc.lpszClassName, gWindowName,
-		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, GetModuleHandle(NULL), 0);
+		WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, GetModuleHandle(NULL), 0);
 	if (!ghMainWnd)
 	{
 		MessageBox(0, "CreateWindow Failed.", 0, 0);
 		return;
 	}
+
+	RECT R = { 0, 0, gClientWidth, gClientHeight };
+	int width = R.right - R.left;
+	int height = R.bottom - R.top;
 
 	// 创建兼容性DC
 	HDC hdc = GetDC((ghMainWnd));
@@ -110,7 +108,7 @@ void WinApp::Initialize()
 	ReleaseDC(ghMainWnd, hdc);
 
 	// 创建图像位图
-	BITMAPINFO bitmapInfo = { { sizeof(BITMAPINFOHEADER),width, height, 1, 32, BI_RGB, width * height * 4, 0, 0, 0, 0 } };
+	BITMAPINFO bitmapInfo = { sizeof(BITMAPINFOHEADER),width, -height, 1, 32, BI_RGB, width * height * 4, 0, 0, 0, 0 };
 	LPVOID ptr;
 	HBITMAP bitmapHandler = CreateDIBSection(gScreenHdc, &bitmapInfo, DIB_RGB_COLORS, &ptr, 0, 0);
 	if (!bitmapHandler)
@@ -121,6 +119,10 @@ void WinApp::Initialize()
 
 	// 选择图像位图
 	SelectObject(gScreenHdc, bitmapHandler);
+	this->window_fb = (unsigned char*)ptr;
+
+	// 设置窗口大小
+	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 
 	// 设置图像到屏幕中央
 	int sx = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
@@ -135,6 +137,7 @@ void WinApp::Initialize()
 	msg_dispatch();
 
 	//初始化keys
+	memset(window_fb, 0, width * height * 4);
 	memset(keys, 0, sizeof(char) * 512);
 }
 
@@ -152,9 +155,20 @@ void WinApp::msg_dispatch()
 	}
 }
 
-void WinApp::Show() 
+void WinApp::Show(unsigned char* framebuffer)
 {
 	HDC hDC = GetDC(ghMainWnd);
+	for (int i = 0; i < gClientHeight; i++)
+	{
+		for (int j = 0; j < gClientWidth; j++) 
+		{
+			int index = (i * gClientWidth + j) * 4;
+			window_fb[index] = framebuffer[index + 2];
+			window_fb[index + 1] = framebuffer[index + 1];
+			window_fb[index + 2] = framebuffer[index + 0];
+		}
+	}
+
 	BitBlt(hDC, 0, 0, gClientWidth, gClientHeight, gScreenHdc, 0, 0, SRCCOPY);
 
 	// show FPS

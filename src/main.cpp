@@ -42,11 +42,10 @@ int main()
 	while (!WinApp::GetApp()->isClose)
 	{
 		// Clear
-		BitBlt(WinApp::GetApp()->GetHDC(), 0, 0, width, height, NULL, NULL, NULL, BLACKNESS);
-		r.ClearDepth();
+		r.ClearAll();
 
 		// camera
-		//camera->handle_events();
+		camera->handle_events();
 
 		angle += 1.0f;
 
@@ -61,7 +60,7 @@ int main()
 		WinApp::GetApp()->GetMouse()->orbit_delta = vec2(0, 0);
 		WinApp::GetApp()->GetMouse()->fv_delta = vec2(0, 0);
 
-		WinApp::GetApp()->Show();
+		WinApp::GetApp()->Show(r.GetBuffer());
 		WinApp::GetApp()->msg_dispatch();
 	}
 
