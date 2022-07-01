@@ -7,23 +7,37 @@
 #include <glm/vec2.hpp>
 #include <memory>
 #include "model.h"
+#include "Camera.h"
 using namespace glm;
+
+struct payload_t
+{
+	Model* model = nullptr;
+	iblmap_t* iblMap = nullptr;
+	Camera* camera = nullptr;
+	mat4x4 World_mat, ViewProj_mat;
+	vec3 pLightPos, pLightColor, pViewPos;
+	mat3x3 VertPosition, VertNormal;
+	mat4x4 ClipPosition;
+	mat3x2 VertUV;
+
+	//for homogeneous clipping
+	vec3 inVertPosition[10], inVertNormal[10];
+	vec4 inClipPosition[10];
+	vec2 inVertUV[10];
+	vec3 outVertPosition[10], outVertNormal[10];
+	vec4 outClipPosition[10];
+	vec2 outVertUV[10];
+};
 
 class IShader {
 public:
-	IShader() :VertPosition(3), VertNormal(3), VertUV(3), model(nullptr), World_mat(), ViewProj_mat() {}
+	IShader() {}
 	virtual ~IShader() {}
-	void set_model_data(Model* model_data) { model = model_data; }	
-	vec3 calculateT(int idx0, int idx1, int idx2);
-	virtual vec4 vertex(int iface, int nthvert) = 0;
+	virtual void vertex(int iface, int nthvert) = 0;
 	virtual bool fragment(const vec3& bary, vec3& color) = 0;
 public:
-	Model* model = nullptr;
-	mat4x4 World_mat, ViewProj_mat;
-	vec3 pLightPos, pLightColor, pViewPos;
-
-protected:
-	mat3x3 VertPosition, VertNormal;
-	mat3x2 VertUV;
-	
+	payload_t* payload;
 };
+
+vec3 cubemap_sampling(vec3 direction, cubemap_t* cubemap);

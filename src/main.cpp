@@ -18,7 +18,7 @@ const vec3 Eye(0, 2, 4);
 const vec3 Up(0, 1, 0);
 const vec3 Target(0, 0, 0);
 
-void main()
+int main()
 {
 	new WinApp(1600, 600, "SoftRenderer");
 	int width = WinApp::GetApp()->GetWidth(), height = WinApp::GetApp()->GetHeight();
@@ -31,7 +31,7 @@ void main()
 	envData->camera = camera;
 	envData->LightColor = glm::vec3(255, 255, 255);
 	envData->LightPos = glm::vec3(1, 1, 1);
-	envData->zNear = -0.1f;
+	envData->zNear = -0.5f;
 	envData->zFar = -10.0f;
 	envData->eye_fov = 45;
 	r.SetUpEnvironment(envData);

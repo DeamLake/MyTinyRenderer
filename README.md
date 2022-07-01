@@ -16,6 +16,7 @@ The most of design details are based on [ssloy's tinyrenderer](https://github.co
 * Back-face culling
 * movable camera
 * tangent space normal mapping
+* skybox
 # Build
 
 ## Linux

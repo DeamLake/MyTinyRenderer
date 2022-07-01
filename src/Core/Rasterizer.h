@@ -6,7 +6,7 @@
 #include <glm/gtc/type_ptr.hpp> // make
 #include<memory>
 #include "Buffer.h"
-#include "IShader.h"
+#include "shaders.h"
 #include "Config.h"
 #include <tbb/tbb/parallel_for.h>
 
@@ -21,9 +21,10 @@ public:
 public:
 	void ClearDepth();
 	void SetHDC(HDC hdc) { gScreenHdc = hdc; }
+	void SetMap(iblmap_t* map) { iblMap = map; }
 	
 	glm::mat4 calculate_model(float angle, const glm::vec3& scales, const glm::vec3& trans);
-	void update_lookat(glm::vec3& view_point, glm::vec3& center, glm::vec3& up);
+	void update_lookat(glm::vec3& view_point, glm::vec3& center, glm::vec3& up, bool isSkyBox);
 	void update_projection(float zNear, float zFar, float eye_fov);
 
 	void SetUpEnvironment(EnvData* data);
@@ -38,7 +39,7 @@ private:
 	// ÄÚ²¿º¯Êý
 	glm::vec3 baryCentric(const std::vector<glm::vec4>& v, float x, float y) const;
 	bool inside_triangle(glm::vec3& bcCoord) const;
-	void draw_triangle(std::vector<glm::vec4>& v, IShader* shader);
+	void draw_triangle(payload_t* payload, IShader* shader);
 	void DrawPixel(int x, int y, glm::vec3& color);
 	void SetDepth(int x, int y, float depth);
 
@@ -49,6 +50,7 @@ private:
 	DepthBuffer gDepthBuffer;
 	
 	Camera* camera;
+	iblmap_t* iblMap;
 	float zNear, zFar, eye_fov;
 	glm::mat4 ProjectionMat, ModelViewMat;
 	glm::vec3 pLightPos, pLightColor;

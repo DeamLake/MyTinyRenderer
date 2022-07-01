@@ -1,4 +1,5 @@
 #include "Rasterizer.h"
+#include "Triangle_Clip.h"
 
 Rasterizer::Rasterizer(int w, int h) 
 	:width(w), height(h), gScreenHdc(NULL), gDepthBuffer(w, h)
@@ -45,7 +46,7 @@ glm::mat4 Rasterizer::calculate_model(float angle, const glm::vec3& scales, cons
 	return rotation * scaletion * translate;
 }
 
-void Rasterizer::update_lookat(glm::vec3& view_point, glm::vec3& center, glm::vec3& up)
+void Rasterizer::update_lookat(glm::vec3& view_point, glm::vec3& center, glm::vec3& up, bool isSkyBox)
 {
 	glm::vec3 z = normalize(view_point - center);
 	glm::vec3 x = normalize(cross(up, z));
@@ -55,7 +56,7 @@ void Rasterizer::update_lookat(glm::vec3& view_point, glm::vec3& center, glm::ve
 		Minv[0][i] = x[i];
 		Minv[1][i] = y[i];
 		Minv[2][i] = z[i];
-		Translate[i][3] = -view_point[i];
+		if (!isSkyBox) { Translate[i][3] = -view_point[i]; }
 	}
 	ModelViewMat = Translate * Minv;
 }
@@ -104,67 +105,49 @@ void Rasterizer::SetUpEnvironment(EnvData* data)
 
 void Rasterizer::Add_Object(ModelData data)
 {
-	IShader* shader = data.shader;
-	shader->set_model_data(data.model);
-	shader->World_mat = calculate_model(data.yangle, data.scales, data.translate);
-	shader->pLightPos = this->pLightPos;
-	shader->pLightColor = this->pLightColor;
+	payload_t* payload = new payload_t();
+	data.shader->payload = payload;
+	payload->model = data.model;
+	payload->World_mat = calculate_model(data.yangle, data.scales, data.translate);
+	payload->pLightPos = this->pLightPos;
+	payload->pLightColor = this->pLightColor;
+	payload->iblMap = this->iblMap;
 	gObjects->push_back(data);
 	gObjectSize++;
 }
 
 void Rasterizer::draw_model(Model* model_data, IShader* shader, Camera* camera)
 {
-	update_lookat(camera->eye, camera->target, camera->up);
+	payload_t* payload = shader->payload;
+	bool isSkyBox = model_data->is_skybox;
+	update_lookat(camera->eye, camera->target, camera->up, isSkyBox);
 	update_projection(this->zNear, this->zFar, this->eye_fov);
-	shader->ViewProj_mat = ModelViewMat * ProjectionMat;
-	shader->pViewPos = camera->eye;
+	payload->camera = camera;
+	payload->ViewProj_mat = ModelViewMat * ProjectionMat;
+	payload->pViewPos = camera->eye;
 
 	for (int i = 0; i < model_data->nfaces(); i++) {
-		int ClipStateCode = 63;
-		std::vector<glm::vec4> coords(3);
-		for (int j = 0; j < 3; j++) {
-			coords[j] = shader->vertex(i, j);
-			// w需要被复用  所以不能直接除
-			coords[j].x /= coords[j].w;
-			coords[j].y /= coords[j].w;
-			coords[j].z /= coords[j].w;
-			int CodeTmp = 0;
-			CodeTmp |= (coords[j][0] < -1) << 0;
-			CodeTmp |= (coords[j][0] > 1) << 1;
-			CodeTmp |= (coords[j][1] < -1) << 2;
-			CodeTmp |= (coords[j][1] > 1) << 3;
-			CodeTmp |= (coords[j][2] < -1) << 4;
-			CodeTmp |= (coords[j][2] > 1) << 5;
-			ClipStateCode &= CodeTmp;
+		for (int j = 0; j < 3; j++)
+			shader->vertex(i, j);
+
+		// homogeneous clipping
+		int num_vertex = homo_clipping(shader->payload);
+
+		// triangle assembly and reaterize
+		for (int i = 0; i < num_vertex - 2; i++) {
+			int index0 = 0;
+			int index1 = i + 1;
+			int index2 = i + 2;
+			// transform data to real vertex attri
+			transform_attri(shader->payload, index0, index1, index2);
+			draw_triangle(shader->payload, shader);
 		}
-
-		// NDC 裁剪
-		if (ClipStateCode > 0) { continue; }
-
-		{
-			// 背面裁剪
-			glm::vec3  AB = coords[1] - coords[0];
-			glm::vec3  AC = coords[2] - coords[0];
-			if (AB[0] * AC[1] - AC[0] * AB[1] < 0)
-				continue;
-		}
-
-		for (int j = 0; j < 3; j++) 
-		{
-			// 视口转换
-			coords[j].x = (coords[j].x + 1.0f)* (width - 1) / 2;
-			coords[j].y = (coords[j].y + 1.0f) * (height - 1) / 2;
-			coords[j].z = (coords[j].z + 1.0f) * 255.0f/2 ;
-		}
-
-		draw_triangle(coords, shader);
 	}
 }
 
 void Rasterizer::rotate_object(float angle, ModelData& data)
 {
-	data.shader->World_mat = calculate_model(angle, data.scales, data.translate);
+	data.shader->payload->World_mat = calculate_model(angle, data.scales, data.translate);
 }
 
 glm::vec3 Rasterizer::baryCentric(const std::vector<glm::vec4>& v, float x, float y) const 
@@ -189,12 +172,37 @@ bool Rasterizer::inside_triangle(glm::vec3& bcCoord) const
 	return true;
 }
 
-void Rasterizer::draw_triangle(std::vector<glm::vec4>& v, IShader* shader) 
+void Rasterizer::draw_triangle(payload_t* payload, IShader* shader) 
 {
-	float x_min = max(0.01f, min(v[0].x,min(v[1].x,v[2].x)));
-	float x_max = min(width - 0.01f, max(v[0].x,max(v[1].x,v[2].x)));
-	float y_min = max(0.01f, min(v[0].y,min(v[1].y,v[2].y)));
-	float y_max = min(height - 0.01f, max(v[0].y, max(v[1].y,v[2].y)));
+	std::vector<vec4> v(3);
+	bool isSkyBox = payload->model->is_skybox;
+
+	// 透视除法 ndc坐标
+	for (int i = 0; i < 3; i++) 
+	{
+		v[i].x = payload->ClipPosition[i].x / payload->ClipPosition[i].w;
+		v[i].y = payload->ClipPosition[i].y / payload->ClipPosition[i].w;
+		v[i].z = payload->ClipPosition[i].z / payload->ClipPosition[i].w;
+		v[i].w = payload->ClipPosition[i].w;
+	}
+
+	// 屏幕坐标
+	for (int i = 0; i < 3; i++)
+	{
+		v[i].x = 0.5 * (width - 1) * (v[i].x + 1.0);
+		v[i].y = 0.5 * (height - 1) * (v[i].y + 1.0);
+	}
+
+	if (!isSkyBox)
+	{
+		if (is_back_facing(v))
+			return;
+	}
+
+	float x_min = min(v[0].x,min(v[1].x,v[2].x));
+	float x_max = max(v[0].x,max(v[1].x,v[2].x));
+	float y_min = min(v[0].y,min(v[1].y,v[2].y));
+	float y_max = max(v[0].y, max(v[1].y,v[2].y));
 
 	for (int x = x_min; x <= x_max; x++) {
 		for (int y = y_min; y <= y_max; y++) {
@@ -204,6 +212,7 @@ void Rasterizer::draw_triangle(std::vector<glm::vec4>& v, IShader* shader)
 				bcCoord.x /= v[0].w; bcCoord.y /= v[1].w; bcCoord.z /= v[2].w;
 				float zp = 1.0f / (bcCoord[0] + bcCoord[1] + bcCoord[2]);
 				bcCoord *= zp;
+				if (shader->payload->model->is_skybox) { zp = -255; }
 
 				if (zp > gDepthBuffer.Sample(x, y)) {
 					SetDepth(x, y, zp);
